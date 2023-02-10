@@ -1,0 +1,11 @@
+#toplevel_page_slack_liveblog .wp-menu-image img {
+  height: 20px;
+  width: 20px;
+  padding: 0;
+}
+
+#toplevel_page_slack_liveblog .wp-menu-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

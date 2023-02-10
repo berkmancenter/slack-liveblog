@@ -1,0 +1,15 @@
+{
+  "name": "berkmancenter/wordpress-slack-liveblog",
+  "require": {
+    "cweagans/composer-patches": "^1.7"
+  },
+  "config": {
+    "preferred-install": "source",
+    "allow-plugins": {
+      "cweagans/composer-patches": true
+    }
+  },
+  "extra": {
+    "patches": {}
+  }
+}

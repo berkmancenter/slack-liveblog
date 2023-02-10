@@ -1,0 +1,10 @@
+# General OS X nonsense
+.DS_Store
+.AppleDouble
+.LSOverride
+
+composer.phar
+
+/vendor/
+
+*.swp
