@@ -1,4 +1,4 @@
-<form action='options.php' method='post'>
+<form action="options.php" method="post">
   <h2>Slack Liveblog settings</h2>
 
   <?php
@@ -7,5 +7,3 @@
     submit_button();
   ?>
 </form>
-
-<?php

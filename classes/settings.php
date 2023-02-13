@@ -28,6 +28,45 @@ class Settings {
 
   public function slack_liveblog_settings_init() {
     register_setting('slack_liveblog_settings_page', 'slack_liveblog_settings');
+
+    add_settings_section(
+      'slack_liveblog_settings_page_section',
+      '',
+      '',
+      'slack_liveblog_settings_page'
+    );
+
+    add_settings_field(
+      'slack_liveblog_checkbox_field_api_url',
+      'API url',
+      [$this, 'slack_liveblog_checkbox_field_api_url_render'],
+      'slack_liveblog_settings_page',
+      'slack_liveblog_settings_page_section'
+    );
+
+    add_settings_field(
+      'slack_liveblog_checkbox_field_api_url',
+      'API url',
+      [$this, 'slack_liveblog_checkbox_field_api_url_render'],
+      'slack_liveblog_settings_page',
+      'slack_liveblog_settings_page_section'
+    );
+
+    add_settings_field(
+      'slack_liveblog_checkbox_field_api_auth_token',
+      'API authentication token',
+      [$this, 'slack_liveblog_checkbox_field_api_auth_token_render'],
+      'slack_liveblog_settings_page',
+      'slack_liveblog_settings_page_section'
+    );
+  }
+
+  public function slack_liveblog_checkbox_field_api_url_render() {
+    $this->load_template('settings_form_field_api_url');
+  }
+
+  public function slack_liveblog_checkbox_field_api_auth_token_render() {
+    $this->load_template('settings_form_field_api_auth_token');
   }
 
   public function add_assets() {
@@ -35,6 +74,10 @@ class Settings {
   }
 
   public function slack_liveblog_options_page() {
-    require (__DIR__ . '/../templates/settings_form.php');
+    $this->load_template('settings_form');
+  }
+
+  private function load_template($name) {
+    require __DIR__ . "/../templates/$name.php";
   }
 }
