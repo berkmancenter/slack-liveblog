@@ -29,15 +29,15 @@ class Events {
     $instance_channels = FrontCore::$channels->get_channels_field('slack_id');
 
     if ($this->incoming_data['token'] !== $this->SIGNING_SECRET) {
-      die();
+      $this->respond_event();
     }
 
     if ($this->incoming_data['event']['type'] !== 'message') {
-      die();
+      $this->respond_event();
     }
 
     if (in_array($channel_id, $instance_channels) === false) {
-      die();
+      $this->respond_event();
     }
 
     $local_channel_id = FrontCore::$channels->get_channel_by_slack_id($channel_id)->id;
@@ -50,5 +50,12 @@ class Events {
       'message' => $this->incoming_data['event']['text'],
       'author_id' => $author->id
     ]);
+
+    $this->respond_event();
+  }
+
+  private function respond_event() {
+    echo $this->incoming_data['challenge'];
+    die();
   }
 }

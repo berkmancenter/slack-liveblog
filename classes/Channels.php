@@ -176,6 +176,8 @@ class Channels {
         cm.author_id = a.id
       WHERE
         channel_id = {$channel_id}
+      ORDER BY
+        cm.created_at ASC
     ";
 
     return $this->database->get_results($query);
