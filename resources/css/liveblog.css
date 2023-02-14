@@ -1,0 +1,8 @@
+.slack-liveblog-messages-item-author {
+  font-weight: bold;
+}
+
+.slack-liveblog-messages-item-author,
+.slack-liveblog-messages-item-body {
+  padding: 1rem 1.5rem;
+}

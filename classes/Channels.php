@@ -163,4 +163,21 @@ class Channels {
 
     return $this->database->query($query);
   }
+
+  public function get_channel_messages($channel_id) {
+    $query = "
+      SELECT
+        *
+      FROM
+        slack_liveblog_channel_messages cm
+      LEFT JOIN
+        slack_liveblog_authors a
+        ON
+        cm.author_id = a.id
+      WHERE
+        channel_id = {$channel_id}
+    ";
+
+    return $this->database->get_results($query);
+  }
 }
