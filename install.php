@@ -2,19 +2,27 @@
 
 require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
-$db_version = 1.0;
-
 function slack_liveblog_install() {
+  $db_version = 1.0;
   global $wpdb;
 
   if (slack_liveblog_is_version_lower(1.1)) {
     $sql = "CREATE TABLE IF NOT EXISTS slack_liveblog_channels (
-      name int(10),
-      id varchar(64) NOT NULL,
-      middle_api_id varchar(64) NOT NULL,
+      id MEDIUMINT NOT NULL AUTO_INCREMENT,
+      name varchar(777) NOT NULL,
+      slack_id varchar(20) NOT NULL,
+      owner_id varchar(20) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
-    ) $charset_collate;";
+    );";
+    dbDelta($sql);
+
+    $sql = "CREATE TABLE IF NOT EXISTS slack_liveblog_channel_messages (
+      channel_id MEDIUMINT NOT NULL,
+      message TEXT DEFAULT '',
+      author_id MEDIUMINT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );";
     dbDelta($sql);
   }
 
@@ -22,5 +30,6 @@ function slack_liveblog_install() {
 }
 
 function slack_liveblog_is_version_lower($version) {
+  return true;
   return !get_option('slack_liveblog_version') || floatval(get_option('slack_liveblog_version')) < $version;
 }

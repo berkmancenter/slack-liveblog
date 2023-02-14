@@ -1,11 +1,15 @@
-#toplevel_page_slack_liveblog .wp-menu-image img {
+#toplevel_page_slack_liveblog_channels .wp-menu-image img {
   height: 20px;
   width: 20px;
   padding: 0;
 }
 
-#toplevel_page_slack_liveblog .wp-menu-image {
+#toplevel_page_slack_liveblog_channels .wp-menu-image {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.toplevel_page_slack_liveblog_channels table.slack-liveblog-channels-list td {
+  padding: 1rem 2rem;
 }

@@ -1,0 +1,1 @@
+<input type="text" name="slack_liveblog_settings[slack_liveblog_checkbox_field_api_verification_token]" value="<?= @\SlackLiveblog\AdminCore::$settings->plugin_settings['slack_liveblog_checkbox_field_api_verification_token'] ?>">

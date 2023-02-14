@@ -1,15 +1,22 @@
 {
   "name": "berkmancenter/wordpress-slack-liveblog",
   "require": {
-    "cweagans/composer-patches": "^1.7"
+    "cweagans/composer-patches": "^1.7",
+    "symfony/http-client": "^5.4",
+    "nyholm/psr7": "^1.5",
+    "jolicode/slack-php-api": "^4.5"
   },
   "config": {
     "preferred-install": "source",
     "allow-plugins": {
-      "cweagans/composer-patches": true
+      "cweagans/composer-patches": true,
+      "php-http/discovery": true
     }
   },
   "extra": {
     "patches": {}
+  },
+  "autoload": {
+    "psr-4": {"SlackLiveblog\\": "classes/"}
   }
 }
