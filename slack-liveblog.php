@@ -16,7 +16,7 @@ add_action('plugins_loaded', function () {
   if (is_admin()) {
     \SlackLiveblog\AdminCore::init();
   } else {
-    \SlackLiveblog\FrontCore;
+    \SlackLiveblog\FrontCore::init();
   }
 });
 

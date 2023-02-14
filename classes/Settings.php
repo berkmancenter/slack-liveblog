@@ -17,10 +17,8 @@ class Settings {
     $this->plugin_settings = get_option('slack_liveblog_settings');
   }
 
-  
   private function init_actions() {
     add_action('admin_init', [$this, 'slack_liveblog_settings_init']);
-    add_action('admin_enqueue_scripts', array($this, 'add_assets'));
   }
 
   public function slack_liveblog_settings_init() {
@@ -42,9 +40,9 @@ class Settings {
     );
 
     add_settings_field(
-      'slack_liveblog_checkbox_field_api_verification_token',
-      'API verification token',
-      [$this, 'slack_liveblog_checkbox_field_api_verification_token_render'],
+      'slack_liveblog_checkbox_field_api_signing_secret',
+      'API signing secret',
+      [$this, 'slack_liveblog_checkbox_field_api_signing_secret_render'],
       'slack_liveblog_settings_page',
       'slack_liveblog_settings_page_section'
     );
@@ -62,16 +60,12 @@ class Settings {
     Templates::load_template('settings_form_field_api_auth_token');
   }
 
-  public function slack_liveblog_checkbox_field_api_verification_token_render() {
-    Templates::load_template('settings_form_field_api_verification_token');
+  public function slack_liveblog_checkbox_field_api_signing_secret_render() {
+    Templates::load_template('settings_form_field_api_signing_secret');
   }
 
   public function slack_liveblog_checkbox_field_slack_team_home_render() {
     Templates::load_template('settings_form_field_slack_team_home');
-  }
-
-  public function add_assets() {
-    wp_enqueue_style('slack_liveblog_settings', plugins_url('resources/css/admin.css', dirname(__FILE__)), array());
   }
 
   public function slack_liveblog_options_page() {

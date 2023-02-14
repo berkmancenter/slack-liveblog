@@ -24,12 +24,21 @@ function slack_liveblog_install() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );";
     dbDelta($sql);
+
+    $sql = "CREATE TABLE IF NOT EXISTS slack_liveblog_authors (
+      id MEDIUMINT NOT NULL AUTO_INCREMENT,
+      slack_id varchar(20) NOT NULL,
+      name varchar(777) NOT NULL,
+      image varchar(777),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
+    );";
+    dbDelta($sql);
   }
 
   update_option('slack_liveblog_version', $db_version);
 }
 
 function slack_liveblog_is_version_lower($version) {
-  return true;
   return !get_option('slack_liveblog_version') || floatval(get_option('slack_liveblog_version')) < $version;
 }

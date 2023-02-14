@@ -12,5 +12,11 @@ class AdminCore {
     self::$settings = new Settings();
     self::$menu = new Menu();
     self::$channels = new Channels();
+
+    add_action('admin_enqueue_scripts', array(self::class, 'add_assets'));
+  }
+
+  public static function add_assets() {
+    wp_enqueue_style('slack_liveblog_settings', plugins_url('resources/css/admin.css', dirname(__FILE__)), array());
   }
 }
