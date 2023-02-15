@@ -16,6 +16,7 @@ class Channels {
   public function __construct() {
     global $wpdb;
     $this->database = $wpdb;
+    $this->slack_client = ClientFactory::create(Settings::i()->get_plugin_settings()['settings_form_field_api_auth_token']);
   }
 
   public function slack_liveblog_channels_init() {
@@ -49,25 +50,44 @@ class Channels {
   }
 
   public function create_new_channel() {
-    $client = ClientFactory::create(AdminCore::$settings->plugin_settings['settings_form_field_api_auth_token']);
-    $new_channel = $client->conversationsCreate(
-      [
-        'is_private' => true,
-        'name' => strtolower($_POST['name'])
-      ]
-    )->getChannel();
-    $new_channel_id = $new_channel->getId();
+    if (empty($_POST['name'])) {
+      throw new Exception('Channel name is required');
+    }
 
-    $client->conversationsInvite([
-      'channel' => $new_channel_id,
-      'users' => $_POST['user-id']
-    ]);
+    if (empty($_POST['user-id'])) {
+      throw new Exception('User ID is required');
+    }
+
+    $new_channel = $this->create_slack_channel($_POST['name']);
+
+    $invite_result = $this->invite_user_to_channel($new_channel->getId(), $_POST['user-id']);
+    if (!$invite_result) {
+      throw new Exception('Failed to invite user to channel');
+    }
 
     $this->create_local_channel([
       'name' => $_POST['name'],
-      'slack_id' => $new_channel_id,
+      'slack_id' => $new_channel->getId(),
       'user_id' => $_POST['user-id']
     ]);
+  }
+
+  public function create_slack_channel($name) {
+    $new_channel = $this->slack_client->conversationsCreate([
+      'is_private' => true,
+      'name' => strtolower($name)
+    ])->getChannel();
+
+    return $new_channel;
+  }
+
+  public function invite_user_to_channel($channel_id, $user_id) {
+    $invite_result = $this->slack_client->conversationsInvite([
+      'channel' => $channel_id,
+      'users' => $user_id
+    ]);
+
+    return $invite_result->getOk();
   }
 
   public function get_channels() {
@@ -88,7 +108,7 @@ class Channels {
       FROM
         slack_liveblog_channels
       WHERE
-        slack_id = '{$slack_id}'
+        slack_id = '$slack_id'
     ";
 
     return $this->database->get_row($query);
@@ -126,23 +146,23 @@ class Channels {
     return $this->database->query($query);
   }
 
-  public function get_or_create_author($slack_id) {
+  public function get_author($value, $field = 'id') {
     $query = "
       SELECT
         *
       FROM
         slack_liveblog_authors
       WHERE
-        slack_id = '{$slack_id}'
+        $field = '$value'
     ";
 
     $row =  $this->database->get_row($query);
 
-    if ($row) {
-      return $row;
-    }
+    return $row;
+  }
 
-    $client = ClientFactory::create(FrontCore::$settings['settings_form_field_api_auth_token']);
+  public function create_new_author($slack_id) {
+    $client = ClientFactory::create(Settings::i()->get_plugin_settings()['settings_form_field_api_auth_token']);
     $user = $client->usersInfo(
       [
         'user' => $slack_id
@@ -158,10 +178,22 @@ class Channels {
 
     $query = $this->database->prepare(
       $query,
-      [$slack_id, $user->getName(), '']
+      [$slack_id, $user->getRealName(), '']
     );
 
-    return $this->database->query($query);
+    $new_author_id = $this->database->query($query);
+
+    return $this->get_author($new_author_id);
+  }
+
+  public function get_or_create_author_by_slack_id($slack_id) {
+    $existing_author = $this->get_author($slack_id, 'slack_id');
+
+    if ($existing_author) {
+      return $existing_author;
+    }
+
+    return $this->create_new_author($slack_id);
   }
 
   public function get_channel_messages($channel_id) {
@@ -175,7 +207,7 @@ class Channels {
         ON
         cm.author_id = a.id
       WHERE
-        channel_id = {$channel_id}
+        channel_id = $channel_id
       ORDER BY
         cm.created_at ASC
     ";

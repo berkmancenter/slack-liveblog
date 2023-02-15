@@ -6,7 +6,7 @@ class Events {
   private $SIGNING_SECRET;
 
   public function __construct() {
-    $this->SIGNING_SECRET = @FrontCore::$settings['slack_liveblog_checkbox_field_api_signing_secret'];
+    $this->SIGNING_SECRET = @Settings::i()->get_plugin_settings()['slack_liveblog_checkbox_field_api_signing_secret'];
 
     add_action('init', [$this, 'slack_liveblog_events_init']);
   }
@@ -43,7 +43,7 @@ class Events {
     $local_channel_id = FrontCore::$channels->get_channel_by_slack_id($channel_id)->id;
 
     $slack_user_id = $this->incoming_data['event']['user'];
-    $author = FrontCore::$channels->get_or_create_author($slack_user_id);
+    $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id);
 
     FrontCore::$channels->create_local_message([
       'channel_id' => $local_channel_id,

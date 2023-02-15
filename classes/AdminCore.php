@@ -9,7 +9,6 @@ class AdminCore {
 
   public static function init() {
     // init modules
-    self::$settings = new Settings();
     self::$menu = new Menu();
     self::$channels = new Channels();
 

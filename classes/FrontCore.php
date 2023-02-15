@@ -10,7 +10,6 @@ class FrontCore {
 
   public static function init() {
     // init modules
-    self::$settings = get_option('slack_liveblog_settings');
     self::$events = new Events();
     self::$channels = new Channels();
     self::$live = new Live();
