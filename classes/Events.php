@@ -15,6 +15,9 @@ class Events {
     if (strpos($_SERVER[ 'REQUEST_URI' ], '/slack_liveblog_events') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
       $this->incoming_data = json_decode(file_get_contents('php://input'), true);
 
+      error_log((file_get_contents('php://input')));
+
+
       if ($this->incoming_data['type'] === 'url_verification') {
         echo $this->incoming_data['challenge'];
         die();
@@ -51,11 +54,28 @@ class Events {
       'author_id' => $author->id
     ]);
 
+    $ws_message = [
+      'channel_id' => $local_channel_id,
+      'message' => $this->incoming_data['event']['text'],
+      'author_name' => $author->name
+    ];
+    \Ratchet\Client\connect($_ENV['WS_SERVER_CLIENT_URL'])->then(function($conn) use ($ws_message) {
+      try {
+        $conn->send(json_encode($ws_message));
+      } catch (\Exception $e) {
+        throw new Exception('Could send data to WS server.');
+      } finally {
+        $conn->close(); 
+      }
+    }, function ($e) {
+      throw new Exception('Could not connect to WS server.');
+    });
+
     $this->respond_event();
   }
 
   private function respond_event() {
-    echo $this->incoming_data['challenge'];
+    echo 'ok';
     die();
   }
 }

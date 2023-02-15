@@ -12,3 +12,7 @@
     </div>
   <?php endforeach; ?>
 </div>
+
+<script>
+  let slack_liveblog_ws_url = '<?php echo $variables['ws_url'] ?>';
+</script>

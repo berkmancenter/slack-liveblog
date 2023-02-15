@@ -5,7 +5,8 @@
 
 composer.phar
 
-/vendor/
+/vendor
+/node_modules
 
 *.swp
 
