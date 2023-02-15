@@ -11,7 +11,10 @@ Version: 1.0
 require 'vendor/autoload.php';
 require(__DIR__ . '/install.php');
 
-// Start the core plugin
+$dotenv = new Symfony\Component\Dotenv\Dotenv();
+$dotenv->load(__DIR__.'/.env');
+
+// Start the core
 add_action('plugins_loaded', function () {
   if (is_admin()) {
     \SlackLiveblog\AdminCore::init();

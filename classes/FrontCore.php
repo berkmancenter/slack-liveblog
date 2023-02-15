@@ -3,7 +3,6 @@
 namespace SlackLiveblog;
 
 class FrontCore {
-  public static $settings = null;
   public static $events = null;
   public static $channels = null;
   public static $live = null;
@@ -18,6 +17,6 @@ class FrontCore {
   }
 
   public static function add_assets() {
-    wp_enqueue_style('slack_liveblog_settings', plugins_url('resources/css/liveblog.css', dirname(__FILE__)), array());
+    wp_enqueue_style('slack_liveblog_front', plugins_url('resources/css/liveblog.css', dirname(__FILE__)), array());
   }
 }

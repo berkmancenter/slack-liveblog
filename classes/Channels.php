@@ -16,7 +16,7 @@ class Channels {
   public function __construct() {
     global $wpdb;
     $this->database = $wpdb;
-    $this->slack_client = ClientFactory::create(Settings::i()->get_plugin_settings()['settings_form_field_api_auth_token']);
+    $this->slack_client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
   }
 
   public function slack_liveblog_channels_init() {
@@ -162,7 +162,7 @@ class Channels {
   }
 
   public function create_new_author($slack_id) {
-    $client = ClientFactory::create(Settings::i()->get_plugin_settings()['settings_form_field_api_auth_token']);
+    $client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
     $user = $client->usersInfo(
       [
         'user' => $slack_id

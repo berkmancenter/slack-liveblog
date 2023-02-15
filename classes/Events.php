@@ -6,7 +6,7 @@ class Events {
   private $SIGNING_SECRET;
 
   public function __construct() {
-    $this->SIGNING_SECRET = @Settings::i()->get_plugin_settings()['slack_liveblog_checkbox_field_api_signing_secret'];
+    $this->SIGNING_SECRET = PluginSettings::i()->get('slack_liveblog_checkbox_field_api_signing_secret');
 
     add_action('init', [$this, 'slack_liveblog_events_init']);
   }

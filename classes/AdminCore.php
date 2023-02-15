@@ -3,7 +3,6 @@
 namespace SlackLiveblog;
 
 class AdminCore {
-  public static $settings = null;
   public static $menu = null;
   public static $channels = null;
 
@@ -16,6 +15,6 @@ class AdminCore {
   }
 
   public static function add_assets() {
-    wp_enqueue_style('slack_liveblog_settings', plugins_url('resources/css/admin.css', dirname(__FILE__)), array());
+    wp_enqueue_style('slack_liveblog_admin', plugins_url('resources/css/admin.css', dirname(__FILE__)), array());
   }
 }
