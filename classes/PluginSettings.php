@@ -11,11 +11,13 @@ namespace SlackLiveblog;
  */
 class PluginSettings {
   private static $instance = null;
+  private array $cached_settings;
 
   public static function i() {
     if (self::$instance === null) {
 
       self::$instance = new PluginSettings();
+      self::$instance->cached_database_settings = get_option('slack_liveblog_settings');
     }
 
     return self::$instance;
@@ -27,8 +29,8 @@ class PluginSettings {
       return $_ENV[$key_upper];
     }
 
-    if (isset($this->all_settings()[$key])) {
-      return $this->all_settings()[$key];
+    if (isset($this->database_settings()[$key])) {
+      return $this->database_settings()[$key];
     }
 
     return '';
@@ -39,7 +41,7 @@ class PluginSettings {
     return isset($_ENV[$key_upper]);
   }
 
-  private function all_settings() {
-    return get_option('slack_liveblog_settings');
+  private function database_settings() {
+    return $this->cached_database_settings;
   }
 }
