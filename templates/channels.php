@@ -16,12 +16,14 @@
           <th scope="row">Slack member ID</th>
           <td>
             <input type="text" name="user-id" id="user-id" required>
+            <p class="description" id="tagline-description">Where to find it? Try this Medium <a target="_blank" href="https://moshfeu.medium.com/how-to-find-my-member-id-in-slack-workspace-d4bba942e38c">article</a>.</p>
           </td>
         </tr>
         <tr>
           <th scope="row">Channel name</th>
           <td>
             <input type="text" name="name" id="name" required>
+            <p class="description" id="tagline-description">Channel names have a 21 character limit and can include lowercase letters, non-Latin characters, numbers and hyphens.</p>
           </td>
         </tr>
       </tbody>
