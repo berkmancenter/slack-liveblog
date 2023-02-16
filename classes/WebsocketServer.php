@@ -62,6 +62,6 @@ class WebsocketServer implements MessageComponentInterface {
   }
 }
 
-$app = new App($_ENV['WS_SERVER_HOST'], $_ENV['WS_SERVER_PORT'] ??= 8080);
+$app = new App($_ENV['WS_SERVER_HOST'], $_ENV['WS_SERVER_PORT'] ??= 8080, '0.0.0.0');
 $app->route('/ws', new WebsocketServer, array('*'));
 $app->run();
