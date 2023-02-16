@@ -1,4 +1,4 @@
-<h3 class="slack-liveblog-channel-title">Liveblog</h3>
+<h2 class="slack-liveblog-channel-title">Liveblog</h2>
 
 <div class="slack-liveblog-messages">
   <?php foreach ($variables['messages'] as $index => $message): ?>
