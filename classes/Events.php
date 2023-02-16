@@ -59,7 +59,15 @@ class Events {
       'created_at' => $local_message->created_at
     ];
 
-    \Ratchet\Client\connect($_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id=$local_channel_id")->then(function($conn) use ($ws_message) {
+    $react_connector = new \React\Socket\Connector([
+      'tls' => [
+        'verify_peer' => false,
+        'verify_peer_name' => false
+      ],
+    ]);
+    $loop = \React\EventLoop\Loop::get();
+    $connector = new \Ratchet\Client\Connector($loop, $react_connector);
+    $connector($_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id=$local_channel_id")->then(function($conn) use ($ws_message) {
       try {
         $conn->send(json_encode($ws_message));
       } catch (\Exception $e) {
