@@ -10,20 +10,7 @@ namespace SlackLiveblog;
  * @package SlackLiveblog
  */
 class Settings {
-  private static $instance = null;
-  private $plugin_settings = null;
-
-  public static function i() {
-    if (self::$instance === null) {
-
-      self::$instance = new Settings();
-    }
-
-    return self::$instance;
-  }
-
   public function __construct() {
-    $this->plugin_settings = get_option('slack_liveblog_settings');
     $this->init_actions();
   }
 
@@ -80,9 +67,5 @@ class Settings {
 
   public function slack_liveblog_options_page() {
     Templates::load_template('settings_form');
-  }
-
-  public function get_plugin_settings() {
-    return $this->plugin_settings;
   }
 }

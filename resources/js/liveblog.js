@@ -18,22 +18,30 @@ class Liveblog {
   }
 
   render_new_message(message) {
-    console.log(message);
     let parent = $('<div/>', {
       class: 'slack-liveblog-messages-item-parent'
+    });
+    let header = $('<div/>', {
+      class: 'slack-liveblog-messages-item-header'
     });
     let author = $('<div/>', {
       class: 'slack-liveblog-messages-item-author',
       html: message.author_name
+    });
+    let time = $('<div/>', {
+      class: 'slack-liveblog-messages-item-time',
+      html: message.created_at
     });
     let body = $('<div/>', {
       class: 'slack-liveblog-messages-item-body',
       html: message.message
     });
 
-    parent.append(author);
+    header.append(author);
+    header.append(time);
+    parent.append(header);
     parent.append(body);
-    this.#dom_el.append(parent);
+    this.#dom_el.prepend(parent);
   }
 }
 

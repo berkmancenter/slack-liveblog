@@ -6,9 +6,6 @@ require 'vendor/autoload.php';
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
-use Ratchet\Server\IoServer;
-use Ratchet\Http\HttpServer;
-use Ratchet\WebSocket\WsServer;
 use Ratchet\App;
 
 $dotenv = new \Symfony\Component\Dotenv\Dotenv();
@@ -22,6 +19,16 @@ class WebsocketServer implements MessageComponentInterface {
   }
 
   public function onOpen(ConnectionInterface $conn) {
+    $http_params = [];
+    parse_str($conn->httpRequest->getUri()->getQuery(), $http_params);
+
+    if (!isset($http_params['channel_id'])) {
+      $conn->close();
+      return;
+    }
+
+    $conn->channel_id = $http_params['channel_id'];
+
     // Store the new connection to send messages to later
     $this->clients->attach($conn);
 
@@ -34,7 +41,7 @@ class WebsocketServer implements MessageComponentInterface {
       , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
 
     foreach ($this->clients as $client) {
-      if ($from !== $client) {
+      if ($from !== $client && $client->channel_id === $from->channel_id) {
         // The sender is not the receiver, send to each client connected
         $client->send($msg);
       }

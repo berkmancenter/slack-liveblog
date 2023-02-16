@@ -24,7 +24,7 @@ class Live {
 
     $messages = FrontCore::$channels->get_channel_messages($channel->id);
 
-    $ws_url = $_ENV['WS_SERVER_CLIENT_URL'];
+    $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->id}";
 
     $liveblog = Templates::load_template('liveblog', [
       'messages' => $messages,

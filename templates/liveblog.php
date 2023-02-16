@@ -3,8 +3,13 @@
 <div class="slack-liveblog-messages">
   <?php foreach ($variables['messages'] as $message): ?>
     <div class="slack-liveblog-messages-item-parent">
-      <div class="slack-liveblog-messages-item-author">
-        <?php echo $message->name; ?>
+      <div class="slack-liveblog-messages-item-header">
+        <div class="slack-liveblog-messages-item-author">
+          <?php echo $message->name; ?>
+        </div>
+        <div class="slack-liveblog-messages-item-time">
+          <?php echo $message->created_at; ?>
+        </div>
       </div>
       <div class="slack-liveblog-messages-item-body">
         <?php echo $message->message; ?>

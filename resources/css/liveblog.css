@@ -1,8 +1,29 @@
-.slack-liveblog-messages-item-author {
-  font-weight: bold;
+.slack-liveblog-messages-item-parent {
+  margin-top: 1rem;
 }
 
-.slack-liveblog-messages-item-author,
+.slack-liveblog-messages-item-parent:first-child {
+  margin-top: 0;
+}
+
+.slack-liveblog-messages-item-author {
+  font-weight: bold;
+  font-size: 110%;
+}
+
+.slack-liveblog-messages-item-header {
+  display: flex;
+  align-items: baseline;
+}
+
 .slack-liveblog-messages-item-body {
-  padding: 1rem 1.5rem;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  padding: 1rem;
+  border: 1px solid #bdb4b4;
+}
+
+.slack-liveblog-messages-item-time {
+  margin-left: 1rem;
 }

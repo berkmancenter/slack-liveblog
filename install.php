@@ -18,10 +18,12 @@ function slack_liveblog_install() {
     dbDelta($sql);
 
     $sql = "CREATE TABLE IF NOT EXISTS slack_liveblog_channel_messages (
+      id MEDIUMINT NOT NULL AUTO_INCREMENT,
       channel_id MEDIUMINT NOT NULL,
       message TEXT DEFAULT '',
       author_id MEDIUMINT NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id)
     );";
     dbDelta($sql);
 

@@ -143,7 +143,22 @@ class Channels {
       [$data['channel_id'], $data['message'], $data['author_id']]
     );
 
-    return $this->database->query($query);
+    $this->database->query($query);
+
+    return $this->get_local_message($this->database->insert_id);
+  }
+
+  public function get_local_message($id) {
+    $query = "
+      SELECT
+        *
+      FROM
+        slack_liveblog_channel_messages
+      WHERE
+        id = '$id'
+    ";
+
+    return $this->database->get_row($query);
   }
 
   public function get_author($value, $field = 'id') {
@@ -199,7 +214,8 @@ class Channels {
   public function get_channel_messages($channel_id) {
     $query = "
       SELECT
-        *
+        *,
+        cm.created_at as created_at
       FROM
         slack_liveblog_channel_messages cm
       LEFT JOIN
@@ -209,7 +225,7 @@ class Channels {
       WHERE
         channel_id = $channel_id
       ORDER BY
-        cm.created_at ASC
+        cm.created_at DESC
     ";
 
     return $this->database->get_results($query);

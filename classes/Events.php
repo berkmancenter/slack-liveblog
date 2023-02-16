@@ -15,9 +15,6 @@ class Events {
     if (strpos($_SERVER[ 'REQUEST_URI' ], '/slack_liveblog_events') !== false && $_SERVER['REQUEST_METHOD'] === 'POST') {
       $this->incoming_data = json_decode(file_get_contents('php://input'), true);
 
-      error_log((file_get_contents('php://input')));
-
-
       if ($this->incoming_data['type'] === 'url_verification') {
         echo $this->incoming_data['challenge'];
         die();
@@ -47,19 +44,22 @@ class Events {
 
     $slack_user_id = $this->incoming_data['event']['user'];
     $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id);
+    $message_text = $this->decorate_message($this->incoming_data['event']['text']);
 
-    FrontCore::$channels->create_local_message([
+    $local_message = FrontCore::$channels->create_local_message([
       'channel_id' => $local_channel_id,
-      'message' => $this->incoming_data['event']['text'],
+      'message' => $message_text,
       'author_id' => $author->id
     ]);
 
     $ws_message = [
       'channel_id' => $local_channel_id,
-      'message' => $this->incoming_data['event']['text'],
-      'author_name' => $author->name
+      'message' => $message_text,
+      'author_name' => $author->name,
+      'created_at' => $local_message->created_at
     ];
-    \Ratchet\Client\connect($_ENV['WS_SERVER_CLIENT_URL'])->then(function($conn) use ($ws_message) {
+
+    \Ratchet\Client\connect($_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id=$local_channel_id")->then(function($conn) use ($ws_message) {
       try {
         $conn->send(json_encode($ws_message));
       } catch (\Exception $e) {
@@ -72,6 +72,10 @@ class Events {
     });
 
     $this->respond_event();
+  }
+
+  private function decorate_message($message_text) {
+    return nl2br($message_text);
   }
 
   private function respond_event() {
