@@ -1,11 +1,19 @@
 <h3 class="slack-liveblog-channel-title">Liveblog</h3>
 
 <div class="slack-liveblog-messages">
-  <?php foreach ($variables['messages'] as $message): ?>
+  <?php foreach ($variables['messages'] as $index => $message): ?>
     <div class="slack-liveblog-messages-item-parent">
       <div class="slack-liveblog-messages-item-header">
         <div class="slack-liveblog-messages-item-author">
-          <?php echo $message->name; ?>
+          <?php
+            $previous_message = $variables['messages'][$index - 1] ??= null;
+            if (
+                !$previous_message ||
+                $previous_message && $previous_message->name != $message->name
+               ) {
+              echo $message->name;
+            }
+          ?>
         </div>
         <div class="slack-liveblog-messages-item-time">
           <?php echo $message->created_at; ?>

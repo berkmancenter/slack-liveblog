@@ -24,10 +24,21 @@ class Liveblog {
     let header = $('<div/>', {
       class: 'slack-liveblog-messages-item-header'
     });
+
+    let previous_message = this.#dom_el.find('.slack-liveblog-messages-item-parent');
+    if (previous_message.length) {
+      let previous_author = previous_message.find('.slack-liveblog-messages-item-author').first();
+
+      if (previous_author.text().trim() === message.author_name) {
+        previous_author.html('');
+      }
+    }
     let author = $('<div/>', {
       class: 'slack-liveblog-messages-item-author',
       html: message.author_name
     });
+
+
     let time = $('<div/>', {
       class: 'slack-liveblog-messages-item-time',
       html: message.created_at
