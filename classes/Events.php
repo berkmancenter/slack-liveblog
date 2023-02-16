@@ -32,7 +32,7 @@ class Events {
       $this->respond_event();
     }
 
-    if ($this->incoming_data['event']['type'] !== 'message') {
+    if ($this->incoming_data['event']['type'] !== 'message' || isset($this->incoming_data['event']['subtype'])) {
       $this->respond_event();
     }
 

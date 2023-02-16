@@ -58,7 +58,9 @@ class Channels {
       throw new Exception('User ID is required');
     }
 
-    $new_channel = $this->create_slack_channel($_POST['name']);
+    $channel_name = strtolower($_POST['name']);
+
+    $new_channel = $this->create_slack_channel($channel_name);
 
     $invite_result = $this->invite_user_to_channel($new_channel->getId(), $_POST['user-id']);
     if (!$invite_result) {
@@ -66,7 +68,7 @@ class Channels {
     }
 
     $this->create_local_channel([
-      'name' => $_POST['name'],
+      'name' => $channel_name,
       'slack_id' => $new_channel->getId(),
       'user_id' => $_POST['user-id']
     ]);
@@ -75,7 +77,7 @@ class Channels {
   public function create_slack_channel($name) {
     $new_channel = $this->slack_client->conversationsCreate([
       'is_private' => true,
-      'name' => strtolower($name)
+      'name' => $name
     ])->getChannel();
 
     return $new_channel;
