@@ -48,9 +48,6 @@ class Events {
       $this->respond('Invalid request signature');
     }
 
-    error_log($this->incoming_data['event']['text']);
-
-
     if (in_array($channel_id, $instance_channels) === false) {
       $this->respond();
     }
