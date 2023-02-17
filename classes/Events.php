@@ -2,6 +2,8 @@
 
 namespace SlackLiveblog;
 
+use SlackLiveblog\EventConsumers\MessageNewConsumer;
+
 class Events {
   private string $signing_secret;
   private string $raw_incoming_data;
@@ -41,40 +43,17 @@ class Events {
       $this->respond('Invalid request signature');
     }
 
-    if ($this->incoming_data['event']['type'] !== 'message' || isset($this->incoming_data['event']['subtype'])) {
-      $this->respond();
-    }
-
     if (in_array($channel_id, $instance_channels) === false) {
       $this->respond();
     }
 
-    $local_channel_id = FrontCore::$channels->get_channel_by_slack_id($channel_id)->id;
+    if ($this->incoming_data['event']['type'] === 'message' && isset($this->incoming_data['event']['subtype']) === false) {
+      $message_to_broadcast = (new EventConsumers\MessageNewConsumer($this->incoming_data, $channel_id))->consume();
+    }
 
-    $slack_user_id = $this->incoming_data['event']['user'];
-    $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id);
-    $message_text = $this->decorate_message($this->incoming_data['event']['text']);
-
-    $local_message = FrontCore::$channels->create_local_message([
-      'channel_id' => $local_channel_id,
-      'message' => $message_text,
-      'author_id' => $author->id
-    ]);
-
-    $ws_message = [
-      'channel_id' => $local_channel_id,
-      'message' => $message_text,
-      'author_name' => $author->name,
-      'created_at' => $local_message->created_at
-    ];
-
-    $this->broadcast_message($local_channel_id, $ws_message);
+    $this->broadcast_message($message_to_broadcast['message_body']);
 
     $this->respond();
-  }
-
-  private function decorate_message($message_text) {
-    return nl2br($message_text);
   }
 
   private function respond($message = 'ok') {
@@ -82,7 +61,7 @@ class Events {
     die();
   }
 
-  private function broadcast_message($channel_id, $message) {
+  private function broadcast_message($message) {
     $react_connector = new \React\Socket\Connector([
       'tls' => [
         'verify_peer' => false,
@@ -91,7 +70,7 @@ class Events {
     ]);
     $loop = \React\EventLoop\Loop::get();
     $connector = new \Ratchet\Client\Connector($loop, $react_connector);
-    $connector($_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id=$channel_id")->then(function($conn) use ($message) {
+    $connector($_ENV['WS_SERVER_CLIENT_URL'])->then(function($conn) use ($message) {
       try {
         $conn->send(json_encode($message));
       } catch (\Exception $e) {
@@ -111,5 +90,9 @@ class Events {
     $computed_hash = hash_hmac('sha256', $base_string, $this->signing_secret);
 
     return hash_equals($hash, $computed_hash);
+  }
+
+  private function camelize($string) {
+    return str_replace('-', '', ucwords($string, '-'));
   }
 }

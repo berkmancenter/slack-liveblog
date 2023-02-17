@@ -22,11 +22,6 @@ class WebsocketServer implements MessageComponentInterface {
     $http_params = [];
     parse_str($conn->httpRequest->getUri()->getQuery(), $http_params);
 
-    if (!isset($http_params['channel_id'])) {
-      $conn->close();
-      return;
-    }
-
     $conn->channel_id = $http_params['channel_id'];
 
     // Store the new connection to send messages to later
@@ -40,8 +35,10 @@ class WebsocketServer implements MessageComponentInterface {
     echo sprintf('Connection %d sending message "%s" to %d other connection%s' . "\n"
       , $from->resourceId, $msg, $numRecv, $numRecv == 1 ? '' : 's');
 
+    $msg_decoded = json_decode($msg);
+
     foreach ($this->clients as $client) {
-      if ($from !== $client && $client->channel_id === $from->channel_id) {
+      if ($from !== $client && $client->channel_id === $msg_decoded->channel_id) {
         // The sender is not the receiver, send to each client connected
         $client->send($msg);
       }
