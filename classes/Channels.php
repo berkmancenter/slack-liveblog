@@ -199,7 +199,9 @@ class Channels {
       [$slack_id, $user->getRealName(), '']
     );
 
-    $new_author_id = $this->database->query($query);
+    $this->database->query($query);
+
+    $new_author_id = $this->database->insert_id;
 
     return $this->get_author($new_author_id);
   }
