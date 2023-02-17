@@ -32,7 +32,8 @@ class Channels {
 
     Templates::load_template('channels', [
       'message' => @$message,
-      'channels' => $this->get_channels()
+      'channels' => $this->get_channels(),
+      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ??= ''
     ]);
   }
 

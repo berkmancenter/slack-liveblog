@@ -49,10 +49,17 @@
   </thead>
   <tbody>
     <?php foreach ($variables['channels'] as $channel): ?>
+      <?php
+        $slack_channel_url = "{$variables['slack_home_path']}/archive/{$channel->slack_id}";
+      ?>
       <tr>
         <td><?php echo $channel->name ?></td>
         <td><?php echo $channel->slack_id ?></td>
-        <td><?php echo $channel->slack_id ?></td>
+        <td>
+          <a target="_blank" href=<?php echo $slack_channel_url ?>>
+            <?php echo $slack_channel_url ?>
+          </a>
+        </td>
         <td><?php echo $channel->owner_id ?></td>
         <td>
           [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
