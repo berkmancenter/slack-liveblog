@@ -50,7 +50,7 @@
   <tbody>
     <?php foreach ($variables['channels'] as $channel): ?>
       <?php
-        $slack_channel_url = "{$variables['slack_home_path']}/archive/{$channel->slack_id}";
+        $slack_channel_url = "{$variables['slack_home_path']}/archives/{$channel->slack_id}";
       ?>
       <tr>
         <td><?php echo $channel->name ?></td>
