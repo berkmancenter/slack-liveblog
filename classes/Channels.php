@@ -41,7 +41,7 @@ class Channels {
       SELECT
         $field
       FROM
-        slack_liveblog_channels
+        {$this->database->prefix}slack_liveblog_channels
     ";
 
     $rows = $this->database->get_results($query);
@@ -93,12 +93,12 @@ class Channels {
   }
 
   public function get_channels() {
-    $query = '
+    $query = "
       SELECT
         *
       FROM
-        slack_liveblog_channels
-    ';
+        {$this->database->prefix}slack_liveblog_channels
+    ";
 
     return $this->database->get_results($query);
   }
@@ -108,7 +108,7 @@ class Channels {
       SELECT
         *
       FROM
-        slack_liveblog_channels
+        {$this->database->prefix}slack_liveblog_channels
       WHERE
         slack_id = '$slack_id'
     ";
@@ -118,7 +118,7 @@ class Channels {
 
   public function create_local_channel($data) {
     $query = "
-      INSERT INTO slack_liveblog_channels
+      INSERT INTO {$this->database->prefix}slack_liveblog_channels
         (name, slack_id, owner_id)
       VALUES
         (%s, %s, %s)
@@ -134,7 +134,7 @@ class Channels {
 
   public function create_local_message($data) {
     $query = "
-      INSERT INTO slack_liveblog_channel_messages
+      INSERT INTO {$this->database->prefix}slack_liveblog_channel_messages
         (channel_id, message, author_id)
       VALUES
         (%s, %s, %s)
@@ -155,7 +155,7 @@ class Channels {
       SELECT
         *
       FROM
-        slack_liveblog_channel_messages
+        {$this->database->prefix}slack_liveblog_channel_messages
       WHERE
         id = '$id'
     ";
@@ -168,7 +168,7 @@ class Channels {
       SELECT
         *
       FROM
-        slack_liveblog_authors
+        {$this->database->prefix}slack_liveblog_authors
       WHERE
         $field = '$value'
     ";
@@ -187,7 +187,7 @@ class Channels {
     )->getUser();
 
     $query = "
-      INSERT INTO slack_liveblog_authors
+      INSERT INTO {$this->database->prefix}slack_liveblog_authors
         (slack_id, name, image)
       VALUES
         (%s, %s, %s)
@@ -219,9 +219,9 @@ class Channels {
         *,
         cm.created_at as created_at
       FROM
-        slack_liveblog_channel_messages cm
+        {$this->database->prefix}slack_liveblog_channel_messages cm
       LEFT JOIN
-        slack_liveblog_authors a
+        {$this->database->prefix}slack_liveblog_authors a
         ON
         cm.author_id = a.id
       WHERE

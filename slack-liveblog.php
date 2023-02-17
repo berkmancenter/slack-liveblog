@@ -11,6 +11,7 @@ Version: 1.0
 require 'vendor/autoload.php';
 require(__DIR__ . '/install.php');
 
+// Load env variables
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
 $dotenv->load(__DIR__.'/.env');
 
@@ -25,3 +26,11 @@ add_action('plugins_loaded', function () {
 
 // Trigger the install script on plugin activation
 register_activation_hook(__FILE__, 'slack_liveblog_install');
+
+// Setup db migrations
+if (defined('WP_CLI') && WP_CLI) {
+  add_filter('dbi_wp_migrations_path', function ($path) {
+    return __DIR__ . '/migrations';
+  });
+  \DeliciousBrains\WPMigrations\Database\Migrator::instance('migrations');
+}

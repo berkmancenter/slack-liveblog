@@ -7,7 +7,8 @@
     "jolicode/slack-php-api": "^4.5",
     "symfony/dotenv": "^5.4",
     "cboden/ratchet": "^0.4.4",
-    "ratchet/pawl": "^0.4.1"
+    "ratchet/pawl": "^0.4.1",
+    "deliciousbrains/wp-migrations": "^2.0"
   },
   "config": {
     "preferred-install": "source",
