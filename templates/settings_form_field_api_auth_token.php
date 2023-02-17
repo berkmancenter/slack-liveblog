@@ -3,4 +3,4 @@
   <p class="description" id="tagline-description">You can't edit this field, it was set by your system administrator.</p>
 <?php else: ?>
   <input type="text" name="slack_liveblog_settings[settings_form_field_api_auth_token]" value="<?= \SlackLiveblog\PluginSettings::i()->get('settings_form_field_api_auth_token') ?>">
-<?php endif; ?>
+<?php endif ?>

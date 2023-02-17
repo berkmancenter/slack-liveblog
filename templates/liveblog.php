@@ -2,7 +2,7 @@
 
 <div class="slack-liveblog-messages">
   <?php foreach ($variables['messages'] as $index => $message): ?>
-    <div class="slack-liveblog-messages-item-parent">
+    <div class="slack-liveblog-messages-item-parent" data-id="<?php echo $message->id ?>">
       <div class="slack-liveblog-messages-item-header">
         <div class="slack-liveblog-messages-item-author">
           <?php
@@ -16,14 +16,14 @@
           ?>
         </div>
         <div class="slack-liveblog-messages-item-time">
-          <?php echo $message->created_at; ?>
+          <?php echo $message->created_at ?>
         </div>
       </div>
       <div class="slack-liveblog-messages-item-body">
-        <?php echo $message->message; ?>
+        <?php echo $message->message ?>
       </div>
     </div>
-  <?php endforeach; ?>
+  <?php endforeach ?>
 </div>
 
 <script>

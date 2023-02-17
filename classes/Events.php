@@ -2,7 +2,7 @@
 
 namespace SlackLiveblog;
 
-use SlackLiveblog\EventConsumers\MessageNewConsumer;
+use SlackLiveblog\EventConsumers;
 
 class Events {
   private string $signing_secret;
@@ -27,6 +27,10 @@ class Events {
     $this->raw_incoming_data = file_get_contents('php://input');
     $this->incoming_data = json_decode($this->raw_incoming_data, true);
 
+    if (isset($_ENV['SLACK_LIVEBLOG_DEBUG'])) {
+      error_log($this->raw_incoming_data);
+    }
+
     if ($this->incoming_data['type'] === 'url_verification') {
       echo $this->incoming_data['challenge'];
       die();
@@ -47,11 +51,20 @@ class Events {
       $this->respond();
     }
 
-    if ($this->incoming_data['event']['type'] === 'message' && isset($this->incoming_data['event']['subtype']) === false) {
-      $message_to_broadcast = (new EventConsumers\MessageNewConsumer($this->incoming_data, $channel_id))->consume();
+    $consumer_name = $this->incoming_data['event']['type'];
+    if (isset($this->incoming_data['event']['subtype'])) {
+      $consumer_name .= "_{$this->incoming_data['event']['subtype']}";
+    }
+    $consumer_class_name = $this->camelize($consumer_name);
+    $consumer_class_name = "SlackLiveblog\EventConsumers\\$consumer_class_name";
+
+    if (class_exists($consumer_class_name)) {
+      $message_to_broadcast = (new $consumer_class_name($this->incoming_data, $channel_id))->consume();
     }
 
-    $this->broadcast_message($message_to_broadcast['message_body']);
+    if (isset($message_to_broadcast) === true) {
+      $this->broadcast_message($message_to_broadcast['message_body']);
+    }
 
     $this->respond();
   }

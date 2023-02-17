@@ -19,7 +19,8 @@ class Liveblog {
 
   render_new_message(message) {
     let parent = $('<div/>', {
-      class: 'slack-liveblog-messages-item-parent'
+      class: 'slack-liveblog-messages-item-parent',
+      'data-id': message.id
     });
     let header = $('<div/>', {
       class: 'slack-liveblog-messages-item-header'

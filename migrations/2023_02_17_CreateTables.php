@@ -8,9 +8,9 @@ class CreateTables extends AbstractMigration {
 
     $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}slack_liveblog_channels (
       id MEDIUMINT NOT NULL AUTO_INCREMENT,
-      name varchar(777) NOT NULL,
-      slack_id varchar(20) NOT NULL,
-      owner_id varchar(20) NOT NULL,
+      name VARCHAR(777) NOT NULL,
+      slack_id VARCHAR(20) NOT NULL,
+      owner_id VARCHAR(20) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
     );";
@@ -28,9 +28,9 @@ class CreateTables extends AbstractMigration {
 
     $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}slack_liveblog_authors (
       id MEDIUMINT NOT NULL AUTO_INCREMENT,
-      slack_id varchar(20) NOT NULL,
-      name varchar(777) NOT NULL,
-      image varchar(777),
+      slack_id VARCHAR(20) NOT NULL,
+      name VARCHAR(777) NOT NULL,
+      image VARCHAR(777),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
     );";

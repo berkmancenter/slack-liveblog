@@ -1,6 +1,6 @@
 <?php if (isset($variables['message'])): ?>
   <p class="notice notice-info">
-    <?php echo $variables['message']; ?>
+    <?php echo $variables['message'] ?>
   </p>
 <?php endif ?>
 
@@ -65,6 +65,6 @@
           [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
         </td>
       </tr>
-    <?php endforeach; ?>
+    <?php endforeach ?>
   </tbody>
 </table>

@@ -136,14 +136,14 @@ class Channels {
   public function create_local_message($data) {
     $query = "
       INSERT INTO {$this->database->prefix}slack_liveblog_channel_messages
-        (channel_id, message, author_id)
+        (channel_id, message, author_id, slack_id)
       VALUES
-        (%s, %s, %s)
+        (%s, %s, %s, %s)
     ";
 
     $query = $this->database->prepare(
       $query,
-      [$data['channel_id'], $data['message'], $data['author_id']]
+      [$data['channel_id'], $data['message'], $data['author_id'], $data['slack_id']]
     );
 
     $this->database->query($query);
@@ -218,7 +218,8 @@ class Channels {
     $query = "
       SELECT
         *,
-        cm.created_at as created_at
+        cm.created_at AS created_at,
+        cm.id AS id
       FROM
         {$this->database->prefix}slack_liveblog_channel_messages cm
       LEFT JOIN

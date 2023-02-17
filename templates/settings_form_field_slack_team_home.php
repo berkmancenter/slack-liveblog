@@ -4,4 +4,4 @@
 <?php else: ?>
   <input type="text" name="slack_liveblog_settings[slack_liveblog_checkbox_field_team_home]" value="<?= \SlackLiveblog\PluginSettings::i()->get('slack_liveblog_checkbox_field_team_home') ?>">
   <p class="description" id="tagline-description">For example https://harvard.slack.com</p>
-<?php endif; ?>
+<?php endif ?>
