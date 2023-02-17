@@ -41,11 +41,15 @@ class Events {
 
   private function handle_event() {
     $channel_id = $this->incoming_data['event']['channel'];
+
     $instance_channels = FrontCore::$channels->get_channels_field('slack_id');
 
     if ($this->is_valid_request() === false) {
       $this->respond('Invalid request signature');
     }
+
+    error_log($this->incoming_data['event']['text']);
+
 
     if (in_array($channel_id, $instance_channels) === false) {
       $this->respond();
@@ -97,12 +101,7 @@ class Events {
   }
 
   private function is_valid_request() {
-    $signature = $_SERVER['HTTP_X_SLACK_SIGNATURE'];
-    list($version, $hash) = explode('=', $signature, 2);
-    $base_string = sprintf('%s:%s:%s', $version, time(), $this->raw_incoming_data);
-    $computed_hash = hash_hmac('sha256', $base_string, $this->signing_secret);
-
-    return hash_equals($hash, $computed_hash);
+    return $this->signing_secret === $this->incoming_data['token'];
   }
 
   private function camelize($string) {

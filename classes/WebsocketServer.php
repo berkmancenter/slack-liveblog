@@ -22,7 +22,7 @@ class WebsocketServer implements MessageComponentInterface {
     $http_params = [];
     parse_str($conn->httpRequest->getUri()->getQuery(), $http_params);
 
-    $conn->channel_id = $http_params['channel_id'];
+    $conn->channel_id = $http_params['channel_id'] ??= null;
 
     // Store the new connection to send messages to later
     $this->clients->attach($conn);

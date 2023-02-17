@@ -10,6 +10,7 @@ class Message extends Consumer {
     $slack_user_id = $this->data['event']['user'];
     $slack_message_id = $this->data['event']['client_msg_id'];
     $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id);
+
     $message_text = $this->decorate_message($this->data['event']['text']);
 
     $local_message = FrontCore::$channels->create_local_message([
