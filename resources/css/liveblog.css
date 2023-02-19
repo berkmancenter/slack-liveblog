@@ -22,6 +22,7 @@
   border-radius: 1rem;
   padding: 1rem;
   border: 1px solid #bdb4b4;
+  overflow-wrap: break-word;
 }
 
 .slack-liveblog-messages-item-time {

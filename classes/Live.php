@@ -16,7 +16,7 @@ class Live {
       return '';
     }
 
-    $channel = FrontCore::$channels->get_channel_by_slack_id($atts['channel_id']);
+    $channel = FrontCore::$channels->get_channel($atts['channel_id'], 'slack_id');
 
     if (!$channel) {
       return '';

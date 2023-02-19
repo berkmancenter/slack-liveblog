@@ -25,7 +25,6 @@ class Channels {
         $this->create_new_channel();
         $message = 'New channel has been created.';
       } catch (\Throwable $th) {
-        error_log(print_r($th, true));
         $message = 'There has been a problem with creating a new channel.';
       }
     }
@@ -33,7 +32,7 @@ class Channels {
     Templates::load_template('channels', [
       'message' => @$message,
       'channels' => $this->get_channels(),
-      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ??= ''
+      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ?? ''
     ]);
   }
 
@@ -104,17 +103,8 @@ class Channels {
     return $this->database->get_results($query);
   }
 
-  public function get_channel_by_slack_id($slack_id) {
-    $query = "
-      SELECT
-        *
-      FROM
-        {$this->database->prefix}slack_liveblog_channels
-      WHERE
-        slack_id = '$slack_id'
-    ";
-
-    return $this->database->get_row($query);
+  public function get_channel($value, $field = 'id') {
+    return Db::get_row('channels', $field, $value);
   }
 
   public function create_local_channel($data) {
@@ -148,20 +138,11 @@ class Channels {
 
     $this->database->query($query);
 
-    return $this->get_local_message($this->database->insert_id);
+    return $this->get_message($this->database->insert_id);
   }
 
-  public function get_local_message($id) {
-    $query = "
-      SELECT
-        *
-      FROM
-        {$this->database->prefix}slack_liveblog_channel_messages
-      WHERE
-        id = '$id'
-    ";
-
-    return $this->database->get_row($query);
+  public function get_message($value, $field = 'id') {
+    return Db::get_row('channel_messages', $field, $value);
   }
 
   public function get_author($value, $field = 'id') {

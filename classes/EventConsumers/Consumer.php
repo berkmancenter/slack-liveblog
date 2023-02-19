@@ -4,12 +4,12 @@ namespace SlackLiveblog\EventConsumers;
 
 abstract class Consumer {
   protected array $data;
-  protected string $channel_id;
+  protected string $slack_channel_id;
 
   abstract public function consume(): array;
 
-  public function __construct(array $data, string $channel_id) {
+  public function __construct(array $data, string $slack_channel_id) {
     $this->data = $data;
-    $this->channel_id = $channel_id;
+    $this->slack_channel_id = $slack_channel_id;
   }
 }

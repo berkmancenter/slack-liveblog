@@ -13,11 +13,19 @@ class Liveblog {
 
     this.#ws_connection.onmessage = function(e) {
       let message = JSON.parse(e.data);
-      that.render_new_message(message);
+
+      switch (message['action']) {
+        case 'message_new':
+          that.message_new(message);
+          break;
+        case 'message_delete':
+          that.message_delete(message);
+          break;
+      }
     };
   }
 
-  render_new_message(message) {
+  message_new(message) {
     let parent = $('<div/>', {
       class: 'slack-liveblog-messages-item-parent',
       'data-id': message.id
@@ -54,6 +62,14 @@ class Liveblog {
     parent.append(header);
     parent.append(body);
     this.#dom_el.prepend(parent);
+  }
+
+  message_delete(message) {
+    let message_dom = this.#dom_el.find(`.slack-liveblog-messages-item-parent[data-id=${message['id']}]`);
+
+    if (message_dom.length) {
+      message_dom.remove();
+    }
   }
 }
 

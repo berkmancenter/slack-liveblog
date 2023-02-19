@@ -102,6 +102,6 @@ class Events {
   }
 
   private function camelize($string) {
-    return str_replace('-', '', ucwords($string, '-'));
+    return str_replace('_', '', ucwords($string, '_'));
   }
 }
