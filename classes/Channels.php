@@ -16,6 +16,8 @@ class Channels {
   public function __construct() {
     global $wpdb;
     $this->database = $wpdb;
+    // To get timestamp values in UTC
+    $this->database->query('SET time_zone = \'+00:00\';');
     $this->slack_client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
   }
 
