@@ -39,7 +39,13 @@ class Message extends Consumer {
   private function get_message_from_blocks($blocks) {
     $text_elements = $blocks[0]['elements'][0]['elements'];
     $text_elements = array_map(function ($element) {
-      return $element['text'] ?? $element['url'];
+      if (isset($element['text'])) {
+        return $element['text'];
+      }
+
+      if (isset($element['url'])) {
+        return "<a href=\"{$element['url']}\" target=\"blank\">{$element['url']}</a>";
+      }
     }, $text_elements);
 
     $merged_text = implode('', $text_elements);
@@ -48,10 +54,6 @@ class Message extends Consumer {
   }
 
   private function decorate_message($message_text) {
-    // Url to hyperlinks
-    $url_pattern = '~(?:(https?)://([^\s<]+)|(www\.[^\s<]+?\.[^\s<]+))(?<![\.,:])~i';
-    $message_text = preg_replace($url_pattern, '<a href="$0" target="_blank" title="$0">$0</a>', $message_text);
-
     // Newlines to brs
     $message_text = nl2br($message_text);
 
