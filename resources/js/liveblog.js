@@ -73,8 +73,10 @@ class Liveblog {
 }
 
 $(document).ready(() => {
-  let liveblog = new Liveblog(
-    '.slack-liveblog-messages',
-    slack_liveblog_ws_url
-  );
+  if (slack_liveblog_ws_url) {
+    let liveblog = new Liveblog(
+      '.slack-liveblog-messages',
+      slack_liveblog_ws_url
+    );
+  }
 });
