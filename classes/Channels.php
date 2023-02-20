@@ -104,7 +104,7 @@ class Channels {
   }
 
   public function get_channel($value, $field = 'id') {
-    return Db::get_row('channels', $field, $value);
+    return Db::i()->get_row('channels', $field, $value);
   }
 
   public function create_local_channel($data) {
@@ -142,7 +142,7 @@ class Channels {
   }
 
   public function get_message($value, $field = 'id') {
-    return Db::get_row('channel_messages', $field, $value);
+    return Db::i()->get_row('channel_messages', $field, $value);
   }
 
   public function get_author($value, $field = 'id') {

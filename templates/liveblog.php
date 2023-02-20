@@ -6,7 +6,7 @@
       <div class="slack-liveblog-messages-item-header">
         <div class="slack-liveblog-messages-item-author">
           <?php
-            $previous_message = $variables['messages'][$index - 1] ??= null;
+            $previous_message = $variables['messages'][$index - 1] ?? null;
             if (
                 !$previous_message ||
                 $previous_message && $previous_message->name != $message->name

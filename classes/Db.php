@@ -17,7 +17,7 @@ class Db {
     return self::$instance;
   }
 
-  public static function get_row($model, $field = 'id', $value) {
+  public function get_row($model, $field = 'id', $value) {
     $prefix = Db::i()->db->prefix;
     $query = "
       SELECT
@@ -38,7 +38,7 @@ class Db {
     return $row;
   }
 
-  public static function delete_row($model, $field = 'id', $value) {
+  public function delete_row($model, $field = 'id', $value) {
     $prefix = Db::i()->db->prefix;
     $query = "
       DELETE FROM

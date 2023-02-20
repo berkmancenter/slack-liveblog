@@ -26,6 +26,12 @@ class Live {
 
     $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->id}";
 
+    $messages = array_map(function ($message) {
+      $message->created_at = Helpers::i()->get_parsed_timezoned_date($message->created_at);
+
+      return $message;
+    }, $messages);
+
     $liveblog = Templates::load_template('liveblog', [
       'messages' => $messages,
       'channel' => $channel,

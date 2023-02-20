@@ -47,7 +47,6 @@ class Liveblog {
       html: message.author_name
     });
 
-
     let time = $('<div/>', {
       class: 'slack-liveblog-messages-item-time',
       html: message.created_at

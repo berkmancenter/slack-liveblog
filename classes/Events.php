@@ -27,7 +27,7 @@ class Events {
     $this->raw_incoming_data = file_get_contents('php://input');
     $this->incoming_data = json_decode($this->raw_incoming_data, true);
 
-    if (isset($_ENV['SLACK_LIVEBLOG_DEBUG'])) {
+    if (isset($_ENV['SLACK_LIVEBLOG_DEBUG']) && $_ENV['SLACK_LIVEBLOG_DEBUG'] === 'true') {
       error_log($this->raw_incoming_data);
     }
 

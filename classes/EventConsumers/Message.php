@@ -3,6 +3,7 @@
 namespace SlackLiveblog\EventConsumers;
 
 use SlackLiveblog\FrontCore;
+use SlackLiveblog\Helpers;
 
 class Message extends Consumer {
   public function consume(): array {
@@ -26,7 +27,7 @@ class Message extends Consumer {
       'channel_id' => $local_channel_id,
       'message' => $message_text,
       'author_name' => $author->name,
-      'created_at' => $local_message->created_at,
+      'created_at' => Helpers::i()->get_parsed_timezoned_date($local_message->created_at),
       'id' => $local_message->id
     ];
 
