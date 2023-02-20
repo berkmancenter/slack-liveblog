@@ -39,6 +39,10 @@ class Message extends Consumer {
   private function get_message_from_blocks($blocks) {
     $text_elements = $blocks[0]['elements'][0]['elements'];
     $text_elements = array_map(function ($element) {
+      if (isset($element['text']) && isset($element['url'])) {
+        return "<a href=\"{$element['url']}\" target=\"blank\">{$element['text']}</a>";
+      }
+
       if (isset($element['text'])) {
         return $element['text'];
       }
