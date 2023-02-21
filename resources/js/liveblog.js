@@ -18,8 +18,11 @@ class Liveblog {
         case 'message_new':
           that.message_new(message);
           break;
-        case 'message_delete':
-          that.message_delete(message);
+        case 'message_deleted':
+          that.message_deleted(message);
+          break;
+        case 'message_changed':
+          that.message_changed(message);
           break;
       }
     };
@@ -63,7 +66,7 @@ class Liveblog {
     this.#dom_el.prepend(parent);
   }
 
-  message_delete(message) {
+  message_deleted(message) {
     let message_dom = this.#dom_el.find(`.slack-liveblog-messages-item-parent[data-id=${message['id']}]`);
 
     let next_message = message_dom.next();
@@ -79,6 +82,12 @@ class Liveblog {
     if (message_dom.length) {
       message_dom.remove();
     }
+  }
+
+  message_changed(message) {
+    let message_dom = this.#dom_el.find(`.slack-liveblog-messages-item-parent[data-id=${message['id']}]`);
+
+    message_dom.find('.slack-liveblog-messages-item-body').first().html(message['message']);
   }
 }
 

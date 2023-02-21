@@ -14,7 +14,7 @@ class MessageMessageDeleted extends Consumer {
     Db::i()->delete_row('channel_messages', 'id', $local_message_id);
 
     $clients_message = [
-      'action' => 'message_delete',
+      'action' => 'message_deleted',
       'channel_id' => $local_channel_id,
       'id' => $local_message_id
     ];

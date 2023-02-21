@@ -56,4 +56,13 @@ class Db {
 
     return $result;
   }
+
+  public function update_row($model, $data, $where) {
+    $prefix = Db::i()->db->prefix;
+    $table = "{$prefix}slack_liveblog_$model";
+
+    $result = self::i()->db->update($table, $data, $where);
+
+    return $result;
+  }
 }

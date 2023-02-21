@@ -219,4 +219,8 @@ class Channels {
 
     return $this->database->get_results($query);
   }
+
+  public function update_local_message($data, $where) {
+    return Db::i()->update_row('channel_messages', $data, $where);
+  }
 }
