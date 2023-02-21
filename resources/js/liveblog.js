@@ -66,6 +66,16 @@ class Liveblog {
   message_delete(message) {
     let message_dom = this.#dom_el.find(`.slack-liveblog-messages-item-parent[data-id=${message['id']}]`);
 
+    let next_message = message_dom.next();
+    if (next_message.length) {
+      let next_message_author = next_message.find('.slack-liveblog-messages-item-author').first();
+      let next_message_author_text = next_message_author.text().trim();
+      if (!next_message_author_text) {
+        let message_dom_author_text = message_dom.find('.slack-liveblog-messages-item-author').first().text().trim();
+        next_message_author.text(message_dom_author_text);
+      }
+    }
+
     if (message_dom.length) {
       message_dom.remove();
     }
