@@ -110,7 +110,7 @@ class Channels {
   }
 
   public function get_channel($value, $field = 'id') {
-    return Db::i()->get_row('channels', $field, $value);
+    return Db::i()->get_row('channels', ['*'], [$field => $value]);
   }
 
   public function create_local_channel($data) {
@@ -148,20 +148,13 @@ class Channels {
   }
 
   public function get_message($value, $field = 'id') {
-    return Db::i()->get_row('channel_messages', $field, $value);
+    $row =  Db::i()->get_row('channel_messages', ['*'], [$field => $value]);
+
+    return $row;
   }
 
   public function get_author($value, $field = 'id') {
-    $query = "
-      SELECT
-        *
-      FROM
-        {$this->database->prefix}slack_liveblog_authors
-      WHERE
-        $field = '$value'
-    ";
-
-    $row =  $this->database->get_row($query);
+    $row =  Db::i()->get_row('authors', ['*'], [$field => $value]);
 
     return $row;
   }

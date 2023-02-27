@@ -17,27 +17,6 @@ class Db {
     return self::$instance;
   }
 
-  public function get_row($model, $field = 'id', $value) {
-    $prefix = self::i()->db->prefix;
-    $query = "
-      SELECT
-        *
-      FROM
-        {$prefix}slack_liveblog_$model
-      WHERE
-        $field = %s
-    ";
-
-    $query = self::i()->db->prepare(
-      $query,
-      [$value]
-    );
-
-    $row =  self::i()->db->get_row($query);
-
-    return $row;
-  }
-
   public function delete_row($model, $field = 'id', $value) {
     $prefix = self::i()->db->prefix;
     $query = "
@@ -66,7 +45,7 @@ class Db {
     return $result;
   }
 
-  public function get_rows($model, $columns = ['*'], $where = []) {
+  public function get_rows($model, $columns = ['*'], $where = [], $order = '', $limit = '') {
     $prefix = self::i()->db->prefix;
     $column_string = implode(", ", $columns);
 
@@ -85,12 +64,29 @@ class Db {
       }
       $query .= implode(" AND ", $conditions);
     }
+    $where_args = array_values($where);
 
-    $args = array_values($where);
+    if (!empty($order)) {
+      $query .= " ORDER BY $order";
+    }
 
-    $query = self::i()->db->prepare($query, $args);
+    if (!empty($limit)) {
+      $query .= " LIMIT $limit";
+    }
+
+    $query = self::i()->db->prepare($query, $where_args);
     $result = self::i()->db->get_results($query);
 
     return $result;
+  }
+
+  public function get_row($model, $columns = ['*'], $where = [], $order = '') {
+    $rows = self::get_rows($model, $columns, $where, $order, '1');
+
+    if (count($rows) === 1) {
+      return $rows[0];
+    } else {
+      return false;
+    }
   }
 }

@@ -4,6 +4,7 @@ namespace SlackLiveblog\EventConsumers;
 
 use SlackLiveblog\FrontCore;
 use SlackLiveblog\Helpers;
+use SlackLiveblog\Db;
 
 class Message extends Consumer {
   public function consume(): array {
@@ -14,6 +15,10 @@ class Message extends Consumer {
 
     $message_text = $this->get_message_from_blocks($this->data['event']['blocks']);
     $message_text = $this->decorate_message($message_text);
+
+    if (Db::i()->get_row('channel_messages', ['id'], ['slack_id' => $slack_message_id])) {
+      return false;
+    }
 
     $local_message = FrontCore::$channels->create_local_message([
       'channel_id' => $local_channel_id,
