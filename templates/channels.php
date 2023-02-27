@@ -29,7 +29,7 @@
       </tbody>
     </table>
 
-    <input type="hidden" name="action" id="action" value="new-channel">
+    <input type="hidden" name="action" id="action" value="channel-new">
     <input type="submit" name="generate-new-channel" id="generate-new-channel" class="button button-primary" value="Generate new channel">
   </p>
 </form>
@@ -45,6 +45,7 @@
       <th>Slack url</th>
       <th>Owner ID</th>
       <th>Tag</th>
+      <th>Closed</th>
     </tr>
   </thead>
   <tbody>
@@ -63,6 +64,15 @@
         <td><?php echo $channel->owner_id ?></td>
         <td>
           [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
+        </td>
+        <td>
+          <?php echo SlackLiveblog\Helpers::i()->get_bool_yes_no($channel->closed) ?>
+          <br>
+          <?php if ($channel->closed === '1'): ?>
+            <a href="<?php echo "{$variables['current_url']}&action=channel-open&id={$channel->id}" ?>">Open</a>
+          <?php else: ?>
+            <a href="<?php echo "{$variables['current_url']}&action=channel-close&id={$channel->id}" ?>">Close</a>
+          <?php endif ?>
         </td>
       </tr>
     <?php endforeach ?>

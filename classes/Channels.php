@@ -22,33 +22,37 @@ class Channels {
   }
 
   public function slack_liveblog_channels_init() {
-    if (@$_POST['action'] === 'new-channel') {
-      try {
-        $this->create_new_channel();
-        $message = 'New channel has been created.';
-      } catch (\Throwable $th) {
-        $message = 'There has been a problem with creating a new channel.';
-      }
+    $current_url = admin_url("admin.php?page={$_GET['page']}");
+
+    switch (@$_REQUEST['action']) {
+      case 'channel-new':
+        try {
+          $this->create_new_channel();
+          $message = 'New channel has been created.';
+        } catch (\Throwable $th) {
+          $message = 'There has been a problem with creating a new channel.';
+        }
+        break;
+      case 'channel-open':
+        $this->open_channel($_GET['id']);
+        break;
+      case 'channel-close':
+        $this->close_channel($_GET['id']);
+        break;
     }
 
     Templates::load_template('channels', [
-      'message' => @$message,
+      'message' => @$message ?? @$_GET['message'],
       'channels' => $this->get_channels(),
-      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ?? ''
+      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ?? '',
+      'current_url' => $current_url
     ]);
   }
 
-  public function get_channels_field($field) {
-    $query = "
-      SELECT
-        $field
-      FROM
-        {$this->database->prefix}slack_liveblog_channels
-    ";
+  public function get_open_channels_slack_ids() {
+    $rows = Db::i()->get_rows('channels', ['slack_id'], ['closed' => '0']);
 
-    $rows = $this->database->get_results($query);
-
-    return array_map(function ($c) use ($field) { return $c->{$field}; }, $rows);
+    return array_map(function ($c) { return $c->{'slack_id'}; }, $rows);
   }
 
   public function create_new_channel() {
@@ -222,5 +226,13 @@ class Channels {
 
   public function update_local_message($data, $where) {
     return Db::i()->update_row('channel_messages', $data, $where);
+  }
+
+  private function open_channel($id) {
+    return Db::i()->update_row('channels', ['closed' => false], ['id' => $id]);
+  }
+
+  private function close_channel($id) {
+    return Db::i()->update_row('channels', ['closed' => true], ['id' => $id]);
   }
 }

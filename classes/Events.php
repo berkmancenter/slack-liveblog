@@ -42,7 +42,7 @@ class Events {
   private function handle_event() {
     $channel_id = $this->incoming_data['event']['channel'];
 
-    $instance_channels = FrontCore::$channels->get_channels_field('slack_id');
+    $instance_channels = FrontCore::$channels->get_open_channels_slack_ids();
 
     if ($this->is_valid_request() === false) {
       $this->respond('Invalid request signature');

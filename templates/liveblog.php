@@ -29,5 +29,8 @@
 </div>
 
 <script>
-  let slack_liveblog_ws_url = '<?php echo $variables['ws_url'] ?>';
+    let slack_liveblog_ws_url = null;
+    <?php if ($variables['channel']->closed === '0'): ?>
+      slack_liveblog_ws_url = '<?php echo $variables['ws_url'] ?>';
+    <?php endif ?>
 </script>

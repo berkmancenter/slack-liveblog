@@ -21,4 +21,8 @@ class Helpers {
 
     return $formatted_date;
   }
+
+  public function get_bool_yes_no($boolean) {
+    return $boolean === '1' ? 'Yes' : 'No';
+  }
 }
