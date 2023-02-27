@@ -74,7 +74,9 @@ class Db {
       $query .= " LIMIT $limit";
     }
 
-    $query = self::i()->db->prepare($query, $where_args);
+    if (!empty($where_args)) {
+      $query = self::i()->db->prepare($query, $where_args);
+    }
     $result = self::i()->db->get_results($query);
 
     return $result;

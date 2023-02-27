@@ -63,7 +63,7 @@ class Events {
       $message_to_broadcast = (new $consumer_class_name($this->incoming_data, $channel_id))->consume();
     }
 
-    if (isset($message_to_broadcast) === true) {
+    if (isset($message_to_broadcast['message_body']) === true) {
       $this->broadcast_message($message_to_broadcast['message_body']);
     }
 

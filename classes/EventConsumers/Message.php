@@ -9,6 +9,7 @@ use SlackLiveblog\Db;
 class Message extends Consumer {
   public function consume(): array {
     $local_channel_id = FrontCore::$channels->get_channel($this->slack_channel_id, 'slack_id')->id;
+    $local_channel_uuid = FrontCore::$channels->get_channel($this->slack_channel_id, 'slack_id')->uuid;
     $slack_user_id = $this->data['event']['user'];
     $slack_message_id = $this->data['event']['client_msg_id'];
     $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id);
@@ -17,7 +18,7 @@ class Message extends Consumer {
     $message_text = $this->decorate_message($message_text);
 
     if (Db::i()->get_row('channel_messages', ['id'], ['slack_id' => $slack_message_id])) {
-      return false;
+      return [];
     }
 
     $local_message = FrontCore::$channels->create_local_message([
@@ -29,7 +30,7 @@ class Message extends Consumer {
 
     $clients_message = [
       'action' => 'message_new',
-      'channel_id' => $local_channel_id,
+      'channel_id' => $local_channel_uuid,
       'message' => $message_text,
       'author_name' => $author->name,
       'created_at' => Helpers::i()->get_parsed_timezoned_date($local_message->created_at),
