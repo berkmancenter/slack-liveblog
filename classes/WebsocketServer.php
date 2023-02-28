@@ -29,7 +29,6 @@ class WebsocketServer implements MessageComponentInterface {
   }
 
   public function onMessage(ConnectionInterface $from, $msg) {
-    $numRecv = count($this->clients) - 1;
     $msg_decoded = json_decode($msg);
 
     foreach ($this->clients as $client) {

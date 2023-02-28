@@ -31,9 +31,9 @@ class Message extends Consumer {
     $clients_message = [
       'action' => 'message_new',
       'channel_id' => $local_channel_uuid,
-      'message' => $message_text,
-      'author_name' => $author->name,
-      'created_at' => Helpers::i()->get_parsed_timezoned_date($local_message->created_at),
+      'body' => $message_text,
+      'author' => $author->name,
+      'created_at' => $local_message->created_at,
       'id' => $local_message->id
     ];
 

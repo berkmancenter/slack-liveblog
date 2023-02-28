@@ -22,20 +22,13 @@ class Live {
       return '';
     }
 
-    $messages = FrontCore::$channels->get_channel_messages($channel->id);
-
     $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->uuid}";
-
-    $messages = array_map(function ($message) {
-      $message->created_at = Helpers::i()->get_parsed_timezoned_date($message->created_at);
-
-      return $message;
-    }, $messages);
+    $messages_url = get_site_url() . "?action=slack_liveblog_get_channel_messages&channel_id={$channel->uuid}";
 
     $liveblog = Templates::load_template('liveblog', [
-      'messages' => $messages,
-      'channel' => $channel,
-      'ws_url' => $ws_url
+      'ws_url' => $ws_url,
+      'messages_url' => $messages_url,
+      'channel' => $channel
     ], true);
 
     return $liveblog;

@@ -9,7 +9,7 @@ class MessageMessageChanged extends Consumer {
   public function consume(): array {
     $slack_message_id = $this->data['event']['message']['client_msg_id'];
     $local_message_id = FrontCore::$channels->get_message($slack_message_id, 'slack_id')->id;
-    $local_channel_id = FrontCore::$channels->get_channel($this->slack_channel_id, 'slack_id')->id;
+    $local_channel_uuid = FrontCore::$channels->get_channel($this->slack_channel_id, 'slack_id')->uuid;
 
     $message_text = $this->get_message_from_blocks($this->data['event']['message']['blocks']);
     $message_text = $this->decorate_message($message_text);
@@ -22,7 +22,7 @@ class MessageMessageChanged extends Consumer {
 
     $clients_message = [
       'action' => 'message_changed',
-      'channel_id' => $local_channel_id,
+      'channel_id' => $local_channel_uuid,
       'message' => $message_text,
       'id' => $local_message_id
     ];

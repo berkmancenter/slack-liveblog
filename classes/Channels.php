@@ -8,17 +8,52 @@ use JoliCode\Slack\ClientFactory;
 /**
  * Class Channels
  *
- * List of channels
+ * Channels related stuff
  *
  * @package SlackLiveblog
  */
 class Channels {
+  private $database;
+  private $slack_client;
+
   public function __construct() {
     global $wpdb;
     $this->database = $wpdb;
     // To get timestamp values in UTC
     $this->database->query('SET time_zone = \'+00:00\';');
     $this->slack_client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
+    $this->init_front_actions();
+  }
+
+  private function init_front_actions() {
+    $this->front_get_channel_messages();
+  }
+
+  private function front_get_channel_messages() {
+    if (($_GET['action'] ?? '') !== 'slack_liveblog_get_channel_messages' || !isset($_GET['channel_id'])) {
+      return;
+    }
+
+    $channel_uuid = filter_input(INPUT_GET, 'channel_id', FILTER_SANITIZE_STRING);
+    $channel = $this->get_channel($channel_uuid, 'uuid');
+
+    if (!$channel) {
+      echo json_encode(['Channel not found']);
+      die();
+    }
+
+    $channel_messages = $this->get_channel_messages($channel->id);
+    $channel_messages = array_map(function ($message) {
+      return [
+        'id' => $message->id,
+        'body' => $message->message,
+        'author' => $message->name,
+        'created_at' => $message->created_at
+      ];
+    }, $channel_messages);
+
+    echo json_encode($channel_messages);
+    die();
   }
 
   public function slack_liveblog_channels_init() {
