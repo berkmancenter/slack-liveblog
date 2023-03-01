@@ -1,0 +1,38 @@
+{
+  "display_information": {
+      "name": "Wordpress Liveblog",
+      "description": "It shares Slack messages with your Wordpress site",
+      "background_color": "#890309"
+  },
+  "features": {
+      "bot_user": {
+          "display_name": "Liveblog bot",
+          "always_online": true
+      }
+  },
+  "oauth_config": {
+      "scopes": {
+          "bot": [
+              "groups:history",
+              "groups:write",
+              "incoming-webhook",
+              "reactions:read",
+              "users:read",
+              "conversations.connect:write"
+          ]
+      }
+  },
+  "settings": {
+      "event_subscriptions": {
+          "request_url": "https://YOUR_SITE_URL/slack_liveblog_events",
+          "bot_events": [
+              "message.groups",
+              "reaction_added",
+              "reaction_removed"
+          ]
+      },
+      "org_deploy_enabled": false,
+      "socket_mode_enabled": false,
+      "token_rotation_enabled": false
+  }
+}
