@@ -13,15 +13,6 @@ class Helpers {
     return self::$instance;
   }
 
-  public function get_parsed_timezoned_date($date_string) {
-    $date = new \DateTime($date_string);
-    $timezone = new \DateTimeZone($_ENV['SLACK_LIVEBLOG_TIMEZONE']);
-    $date->setTimezone($timezone);
-    $formatted_date = $date->format('h:i A');
-
-    return $formatted_date;
-  }
-
   public function get_bool_yes_no($boolean) {
     return $boolean === '1' ? 'Yes' : 'No';
   }
