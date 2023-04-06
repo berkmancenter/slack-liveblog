@@ -6,19 +6,19 @@
 </template>
 
 <script>
-import LiveBlog from './components/LiveBlog.vue';
+import LiveBlog from './components/LiveBlog.vue'
 
 export default {
   name: 'SlackLiveblog',
   components: {
-    LiveBlog
+    LiveBlog,
   },
   data() {
     return {
       wsUrl: window.slack_liveblog_ws_url,
-      messagesUrl: window.slack_liveblog_messages_url
+      messagesUrl: window.slack_liveblog_messages_url,
     }
-  }
+  },
 }
 </script>
 
