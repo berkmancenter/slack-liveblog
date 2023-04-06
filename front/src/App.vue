@@ -1,7 +1,7 @@
 <template>
   <div id="slack-liveblog">
     <h2>Live Blog</h2>
-    <live-blog :wsUrl="wsUrl" :messagesUrl="messagesUrl" />
+    <live-blog :wsUrl="wsUrl" :messagesUrl="messagesUrl" :useWebsockets="useWebsockets" />
   </div>
 </template>
 
@@ -17,6 +17,7 @@ export default {
     return {
       wsUrl: window.slack_liveblog_ws_url,
       messagesUrl: window.slack_liveblog_messages_url,
+      useWebsockets: window.slack_liveblog_use_websockets,
     }
   },
 }

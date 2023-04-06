@@ -22,13 +22,20 @@ class Live {
       return '';
     }
 
-    $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->uuid}";
+    $use_websockets = 'false';
+    $ws_url = null;
+    if (@$_ENV['SLACK_LIVEBLOG_USE_WEBSOCKETS'] === 'true') {
+      $use_websockets = 'true';
+      $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->uuid}";
+    }
+
     $messages_url = get_site_url() . "?action=slack_liveblog_get_channel_messages&channel_id={$channel->uuid}";
 
     $liveblog = Templates::load_template('liveblog', [
       'ws_url' => $ws_url,
       'messages_url' => $messages_url,
-      'channel' => $channel
+      'channel' => $channel,
+      'use_websockets' => $use_websockets
     ], true);
 
     return $liveblog;

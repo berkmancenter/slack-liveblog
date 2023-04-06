@@ -28,6 +28,10 @@ export default {
       type: String,
       required: true,
     },
+    useWebsockets: {
+      type: Boolean,
+      required: false,
+    },
   },
   computed: {
     formatMessageTime() {
@@ -39,8 +43,14 @@ export default {
     },
   },
   mounted() {
-    this.initWebSocket()
+    const that = this
     this.loadMessages()
+
+    if (this.useWebsockets) {
+      this.initWebSocket()
+    } else {
+      setInterval(() => that.loadMessages(), 1000)
+    }
   },
   methods: {
     initWebSocket() {
