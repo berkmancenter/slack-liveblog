@@ -26,6 +26,13 @@
             <p class="description" id="tagline-description">Channel names have a 21 character limit and can include lowercase letters, non-Latin characters, numbers and hyphens.</p>
           </td>
         </tr>
+        <tr>
+          <th scope="row">Refresh interval</th>
+          <td>
+            <input type="number" name="name" id="name" value="3" min="1" required>
+            <p class="description" id="tagline-description">How often messages refresh when users view the channel, in seconds.</p>
+          </td>
+        </tr>
       </tbody>
     </table>
 
@@ -45,6 +52,7 @@
       <th>Slack url</th>
       <th>Owner ID</th>
       <th>Tag</th>
+      <th>Refresh interval</th>
       <th>Closed</th>
     </tr>
   </thead>
@@ -53,7 +61,7 @@
       <?php
         $slack_channel_url = "{$variables['slack_home_path']}/archives/{$channel->slack_id}";
       ?>
-      <tr>
+      <tr data-id="<?php echo $channel->id ?>">
         <td><?php echo $channel->name ?></td>
         <td><?php echo $channel->slack_id ?></td>
         <td>
@@ -66,8 +74,15 @@
           [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
         </td>
         <td>
-          <?php echo SlackLiveblog\Helpers::i()->get_bool_yes_no($channel->closed) ?>
-          <br>
+          <div>
+            <input type="number" min="1" value="<?php echo $channel->refresh_interval ?>" class="slack-liveblog-channels-list-refresh-interval"> sec
+          </div>
+          <a class="slack-liveblog-channels-list-refresh-interval-save">Save</a>
+        </td>
+        <td>
+          <div>
+            <?php echo SlackLiveblog\Helpers::i()->get_bool_yes_no($channel->closed) ?>
+          </div>
           <?php if ($channel->closed === '1'): ?>
             <a href="<?php echo "{$variables['current_url']}&action=channel-open&id={$channel->id}" ?>">Open</a>
           <?php else: ?>

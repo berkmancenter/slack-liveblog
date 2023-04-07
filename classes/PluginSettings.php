@@ -11,7 +11,7 @@ namespace SlackLiveblog;
  */
 class PluginSettings {
   private static $instance = null;
-  private array $cached_settings;
+  private array $cached_database_settings;
 
   public static function i() {
     if (self::$instance === null) {

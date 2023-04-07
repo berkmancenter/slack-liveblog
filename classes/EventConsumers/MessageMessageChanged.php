@@ -3,7 +3,6 @@
 namespace SlackLiveblog\EventConsumers;
 
 use SlackLiveblog\FrontCore;
-use SlackLiveblog\Db;
 
 class MessageMessageChanged extends Consumer {
   public function consume(): array {

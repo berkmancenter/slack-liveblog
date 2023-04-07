@@ -13,3 +13,11 @@
 .toplevel_page_slack_liveblog_channels table.slack-liveblog-channels-list td {
   padding: 1rem 2rem;
 }
+
+.slack-liveblog-channels-list-refresh-interval {
+  width: 65px;
+}
+
+.slack-liveblog-channels-list-refresh-interval-save {
+  cursor: pointer;
+}

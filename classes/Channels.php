@@ -2,7 +2,6 @@
 
 namespace SlackLiveblog;
 
-use JoliCode\Slack\Api\Client;
 use JoliCode\Slack\ClientFactory;
 
 /**
@@ -22,66 +21,6 @@ class Channels {
     // To get timestamp values in UTC
     $this->database->query('SET time_zone = \'+00:00\';');
     $this->slack_client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
-    $this->init_front_actions();
-  }
-
-  private function init_front_actions() {
-    $this->front_get_channel_messages();
-  }
-
-  private function front_get_channel_messages() {
-    if (($_GET['action'] ?? '') !== 'slack_liveblog_get_channel_messages' || !isset($_GET['channel_id'])) {
-      return;
-    }
-
-    $channel_uuid = filter_input(INPUT_GET, 'channel_id', FILTER_SANITIZE_STRING);
-    $channel = $this->get_channel($channel_uuid, 'uuid');
-
-    if (!$channel) {
-      echo json_encode(['Channel not found']);
-      die();
-    }
-
-    $channel_messages = $this->get_channel_messages($channel->id);
-    $channel_messages = array_map(function ($message) {
-      return [
-        'id' => $message->id,
-        'body' => $message->message,
-        'author' => $message->name,
-        'created_at' => $message->created_at
-      ];
-    }, $channel_messages);
-
-    echo json_encode($channel_messages);
-    die();
-  }
-
-  public function slack_liveblog_channels_init() {
-    $current_url = admin_url("admin.php?page={$_GET['page']}");
-
-    switch (@$_REQUEST['action']) {
-      case 'channel-new':
-        try {
-          $this->create_new_channel();
-          $message = 'New channel has been created.';
-        } catch (\Throwable $th) {
-          $message = 'There has been a problem with creating a new channel.';
-        }
-        break;
-      case 'channel-open':
-        $this->open_channel($_GET['id']);
-        break;
-      case 'channel-close':
-        $this->close_channel($_GET['id']);
-        break;
-    }
-
-    Templates::load_template('channels', [
-      'message' => @$message ?? @$_GET['message'],
-      'channels' => $this->get_channels(),
-      'slack_home_path' => $_ENV['SLACK_LIVEBLOG_CHECKBOX_FIELD_TEAM_HOME'] ?? '',
-      'current_url' => $current_url
-    ]);
   }
 
   public function get_open_channels_slack_ids() {
@@ -254,13 +193,5 @@ class Channels {
 
   public function update_local_message($data, $where) {
     return Db::i()->update_row('channel_messages', $data, $where);
-  }
-
-  private function open_channel($id) {
-    return Db::i()->update_row('channels', ['closed' => false], ['id' => $id]);
-  }
-
-  private function close_channel($id) {
-    return Db::i()->update_row('channels', ['closed' => true], ['id' => $id]);
   }
 }

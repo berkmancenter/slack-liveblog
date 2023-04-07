@@ -8,9 +8,12 @@ class Templates {
       require_once __DIR__ . "/../templates/$name.php";
     } else {
       ob_start();
+
       require_once __DIR__ . "/../templates/$name.php";
+
       $output = ob_get_contents();
       ob_end_clean();
+
       return $output;
     }
   }

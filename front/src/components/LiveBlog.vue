@@ -28,9 +28,17 @@ export default {
       type: String,
       required: true,
     },
+    closed: {
+      type: Boolean,
+      required: true,
+    },
     useWebsockets: {
       type: Boolean,
       required: false,
+    },
+    refreshInterval: {
+      type: Boolean,
+      required: true,
     },
   },
   computed: {
@@ -46,18 +54,18 @@ export default {
     const that = this
     this.loadMessages()
 
+    if (this.closed === '1') {
+      return
+    }
+
     if (this.useWebsockets) {
       this.initWebSocket()
     } else {
-      setInterval(() => that.loadMessages(), 1000)
+      setInterval(() => that.loadMessages(), that.refreshInterval)
     }
   },
   methods: {
     initWebSocket() {
-      if (window.slack_liveblog_closed === '1') {
-        return
-      }
-
       const socket = new WebSocket(this.wsUrl)
       socket.onmessage = (event) => {
         const message = JSON.parse(event.data)
