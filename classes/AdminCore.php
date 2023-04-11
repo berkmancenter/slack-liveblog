@@ -22,8 +22,8 @@ class AdminCore {
   }
 
   public static function add_assets() {
-    wp_enqueue_script('slack_liveblog_admin_vendor', plugins_url('dist/vendor.js', dirname(__FILE__)), array());
-    wp_enqueue_style('slack_liveblog_admin_vendor', plugins_url('dist/vendor.css', dirname(__FILE__)), array());
+    wp_enqueue_script('slack_liveblog_admin_vendor', plugins_url('dist/admin/vendor.js', dirname(__FILE__)), array());
+    wp_enqueue_style('slack_liveblog_admin_vendor', plugins_url('dist/admin/vendor.css', dirname(__FILE__)), array());
 
     wp_enqueue_style('slack_liveblog_admin', plugins_url('resources/css/admin.css', dirname(__FILE__)), array());
     wp_enqueue_script('slack_liveblog_admin', plugins_url('resources/js/admin.js', dirname(__FILE__)), array());
