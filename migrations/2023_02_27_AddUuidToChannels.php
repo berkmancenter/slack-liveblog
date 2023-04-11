@@ -18,7 +18,7 @@ class AddUuidToChannels extends AbstractMigration {
 
     $exisiting_channels = Db::i()->get_rows('channels');
     foreach ($exisiting_channels as $channel) {
-      Db::i()->update_row('channels', ['uuid' => Helpers::i()->get_uuid()], ['id' => $channel->id]);
+      Db::i()->update_row('channels', ['uuid' => Helpers::get_uuid()], ['id' => $channel->id]);
     }
   }
 

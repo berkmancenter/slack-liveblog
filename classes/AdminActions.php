@@ -26,11 +26,8 @@ class AdminActions {
     $response = [];
 
     switch ($_POST['sub_action']) {
-      case 'channel-open':
-        $response = $this->open_channel($_POST['id']);
-        break;
-      case 'channel-close':
-        $response = $this->close_channel($_POST['id']);
+      case 'channel-toggle':
+        $response = $this->toggle_channel($_POST['id']);
         break;
       case 'update-refresh-interval':
         $response = $this->update_refresh_interval($_POST['id'], $_POST['refresh_interval']);
@@ -52,12 +49,11 @@ class AdminActions {
     ]);
   }
 
-  private function open_channel($id) {
-    return Db::i()->update_row('channels', ['closed' => false], ['id' => $id]);
-  }
+  private function toggle_channel($id) {
+    $channel = Db::i()->get_row('channels', ['closed'], ['id' => $id]);
+    $new_status = $channel->closed === '1' ? '0' : '1';
 
-  private function close_channel($id) {
-    return Db::i()->update_row('channels', ['closed' => true], ['id' => $id]);
+    return Db::i()->update_row('channels', ['closed' => $new_status], ['id' => $id]);
   }
 
   private function update_refresh_interval($id, $refresh_interval) {

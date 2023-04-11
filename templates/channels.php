@@ -75,19 +75,25 @@
         </td>
         <td>
           <div>
-            <input type="number" min="1" value="<?php echo $channel->refresh_interval ?>" class="slack-liveblog-channels-list-refresh-interval"> sec
+            <input type="number" min="1" value="<?php echo $channel->refresh_interval ?>" class="slack-liveblog-channels-list-refresh-interval" data-key="refresh_interval"> sec
           </div>
-          <a class="slack-liveblog-channels-list-refresh-interval-save">Save</a>
+          <a class="slack-liveblog-channels-list-action"
+             data-action="update-refresh-interval"
+             data-success-message="Refresh interval has been saved successfully."
+             data-elements-submit=".slack-liveblog-channels-list-refresh-interval"
+          >Save</a>
         </td>
         <td>
           <div>
-            <?php echo SlackLiveblog\Helpers::i()->get_bool_yes_no($channel->closed) ?>
+            <?php echo SlackLiveblog\Helpers::get_bool_yes_no($channel->closed) ?>
           </div>
-          <?php if ($channel->closed === '1'): ?>
-            <a href="<?php echo "{$variables['current_url']}&action=channel-open&id={$channel->id}" ?>">Open</a>
-          <?php else: ?>
-            <a href="<?php echo "{$variables['current_url']}&action=channel-close&id={$channel->id}" ?>">Close</a>
-          <?php endif ?>
+          <a class="slack-liveblog-channels-list-action"
+             data-action="channel-toggle"
+             data-success-message="Closed status has been saved successfully."
+             data-success-callback="closedChange"
+             data-elements-submit=".slack-liveblog-channels-list-status"
+          ><?php echo SlackLiveblog\Helpers::get_channel_open_close($channel->closed) ?></a>
+          <input type="hidden" class="slack-liveblog-channels-list-status" value="<?php echo !$channel->closed ?>" data-key="status">
         </td>
       </tr>
     <?php endforeach ?>
