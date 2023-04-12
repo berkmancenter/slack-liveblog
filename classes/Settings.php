@@ -66,6 +66,10 @@ class Settings {
   }
 
   public function slack_liveblog_options_page() {
-    Templates::load_template('settings_form');
+    $connect_to_slack_redirect_url = admin_url('admin.php?page=slack_liveblog_channels&action=connect-from-slack');
+
+    Templates::load_template('settings_form', [
+      'connect_to_slack_redirect_url' => $connect_to_slack_redirect_url
+    ]);
   }
 }

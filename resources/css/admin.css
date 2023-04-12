@@ -21,3 +21,20 @@
 .slack-liveblog-channels-list-action {
   cursor: pointer;
 }
+
+.slack-liveblog-connect-button {
+  align-items: center;
+  color: #fff;
+  background-color: #4A154B;
+  border: 0;
+  border-radius: 44px;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  text-decoration: none;
+  width: 250px;
+}
+
+.slack-liveblog-connect-button:hover {
+  color: #fff;
+}

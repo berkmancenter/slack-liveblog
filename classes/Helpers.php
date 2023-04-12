@@ -19,4 +19,16 @@ class Helpers {
 
     return $uuid;
   }
+
+  public static function connected_to_slack_yes_no() {
+    $status = PluginSettings::i()->get('settings_form_connected_to_workspace');
+
+    if ($status === 'true') {
+      $status_label = 'Connected to workspace';
+    } else {
+      $status_label = 'Not connected to workspace';
+    }
+
+    return $status_label;
+  }
 }

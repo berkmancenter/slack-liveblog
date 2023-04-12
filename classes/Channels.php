@@ -75,9 +75,15 @@ class Channels {
   public function get_channels() {
     $query = "
       SELECT
-        *
+        ch.*,
+        wo.name AS workspace_name,
+        wo.id AS workspace_id
       FROM
-        {$this->database->prefix}slack_liveblog_channels
+        {$this->database->prefix}slack_liveblog_channels ch
+      LEFT JOIN
+        {$this->database->prefix}slack_liveblog_workspaces wo
+        ON
+        ch.workspace_id = wo.id
     ";
 
     return $this->database->get_results($query);
@@ -183,10 +189,15 @@ class Channels {
         ON
         cm.author_id = a.id
       WHERE
-        channel_id = $channel_id
+        channel_id = %s
       ORDER BY
         cm.created_at DESC
     ";
+
+    $query = $this->database->prepare(
+      $query,
+      [$channel_id]
+    );
 
     return $this->database->get_results($query);
   }

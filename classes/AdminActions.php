@@ -17,6 +17,10 @@ class AdminActions {
           $message = 'There has been a problem with creating a new channel.';
         }
         break;
+      case 'connect-from-slack':
+        var_dump($_REQUEST);
+        die();
+        break;
     }
 
     $this->default_view();

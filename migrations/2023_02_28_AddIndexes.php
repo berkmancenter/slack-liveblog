@@ -35,6 +35,7 @@ class AddIndexes extends AbstractMigration {
 
   public function rollback() {
     global $wpdb;
+
     $sql = "
       ALTER TABLE
         {$wpdb->prefix}slack_liveblog_channels
