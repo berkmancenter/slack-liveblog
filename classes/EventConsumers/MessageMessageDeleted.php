@@ -8,7 +8,7 @@ use SlackLiveblog\Db;
 class MessageMessageDeleted extends Consumer {
   public function consume(): array {
     $slack_message_id = $this->data['event']['previous_message']['client_msg_id'];
-    $local_channel_uuid = FrontCore::$channels->get_channel($this->slack_channel_id, 'slack_id')->uuid;
+    $local_channel_uuid = FrontCore::$channels->get_channel(['slack_id' => $this->slack_channel_id])->uuid;
     $local_message_id = FrontCore::$channels->get_message($slack_message_id, 'slack_id')->id;
 
     Db::i()->delete_row('channel_messages', 'id', $local_message_id);

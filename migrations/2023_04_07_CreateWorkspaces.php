@@ -8,12 +8,14 @@ class CreateWorkspaces extends AbstractMigration {
 
     $sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}slack_liveblog_workspaces (
       id MEDIUMINT NOT NULL AUTO_INCREMENT,
-      name VARCHAR(777) NOT NULL,
-      home_url VARCHAR(150) NOT NULL,
-      client_id VARCHAR(50) NOT NULL,
-      client_secret VARCHAR(64) NOT NULL,
-      verification_token VARCHAR(64) NOT NULL,
-      signing_secret VARCHAR(64) NOT NULL,
+      name TINYTEXT NOT NULL,
+      home_url TINYTEXT NOT NULL,
+      client_id TINYTEXT NOT NULL,
+      client_secret TINYTEXT NOT NULL,
+      verification_token TINYTEXT NOT NULL,
+      signing_secret TINYTEXT NOT NULL,
+      access_token TINYTEXT NOT NULL,
+      redirect_url TINYTEXT NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (id)
     );";

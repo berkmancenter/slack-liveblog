@@ -1,4 +1,8 @@
 {
+  "_metadata": {
+      "major_version": 1,
+      "minor_version": 1
+  },
   "display_information": {
       "name": "Wordpress Liveblog",
       "description": "It shares Slack messages with your Wordpress site",
@@ -20,11 +24,14 @@
               "users:read",
               "conversations.connect:write"
           ]
-      }
+      },
+      "redirect_urls": [
+        "###REDIRECT_URL###"
+      ]
   },
   "settings": {
       "event_subscriptions": {
-          "request_url": "https://YOUR_SITE_URL/slack_liveblog_events",
+          "request_url": "###SITE_URL###/slack_liveblog_events",
           "bot_events": [
               "message.groups",
               "reaction_added",

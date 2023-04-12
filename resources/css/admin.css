@@ -18,7 +18,7 @@
   width: 65px;
 }
 
-.slack-liveblog-channels-list-action {
+.slack-liveblog-channels-list-pointer {
   cursor: pointer;
 }
 
@@ -35,6 +35,8 @@
   width: 250px;
 }
 
-.slack-liveblog-connect-button:hover {
+.slack-liveblog-connect-button:hover,
+.slack-liveblog-connect-button:focus,
+.slack-liveblog-connect-button:active {
   color: #fff;
 }

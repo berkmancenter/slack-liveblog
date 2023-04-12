@@ -5,13 +5,10 @@ namespace SlackLiveblog;
 use SlackLiveblog\EventConsumers;
 
 class Events {
-  private string $signing_secret;
   private string $raw_incoming_data;
   private array $incoming_data;
 
   public function __construct() {
-    $this->signing_secret = PluginSettings::i()->get('slack_liveblog_checkbox_field_api_signing_secret');
-
     add_action('init', [$this, 'slack_liveblog_events_init']);
   }
 
@@ -44,12 +41,15 @@ class Events {
 
     $instance_channels = FrontCore::$channels->get_open_channels_slack_ids();
 
-    if ($this->is_valid_request() === false) {
-      $this->respond('Invalid request signature');
-    }
-
     if (in_array($channel_id, $instance_channels) === false) {
       $this->respond();
+    }
+
+    $channel = FrontCore::$channels->get_channel(['slack_id' => $channel_id]);
+    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $channel->workspace_id]);
+
+    if ($this->is_valid_request($workspace->verification_token) === false) {
+      $this->respond('Invalid request signature');
     }
 
     $consumer_name = $this->incoming_data['event']['type'];
@@ -60,11 +60,11 @@ class Events {
     $consumer_class_name = "SlackLiveblog\EventConsumers\\$consumer_class_name";
 
     if (class_exists($consumer_class_name)) {
-      $message_to_broadcast = (new $consumer_class_name($this->incoming_data, $channel_id))->consume();
+      $consumed = (new $consumer_class_name($this->incoming_data, $channel_id))->consume();
     }
 
-    if (isset($message_to_broadcast['message_body']) === true) {
-      $this->broadcast_message($message_to_broadcast['message_body']);
+    if (@$_ENV['SLACK_LIVEBLOG_USE_WEBSOCKETS'] === 'true' && isset($consumed['message_body']) === true) {
+      $this->broadcast_message($consumed['message_body']);
     }
 
     $this->respond();
@@ -97,8 +97,8 @@ class Events {
     });
   }
 
-  private function is_valid_request() {
-    return $this->signing_secret === $this->incoming_data['token'];
+  private function is_valid_request($signing_secret) {
+    return $signing_secret === $this->incoming_data['token'];
   }
 
   private function camelize($string) {

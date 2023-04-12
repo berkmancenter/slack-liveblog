@@ -17,7 +17,7 @@ class FrontActions {
     }
 
     $channel_uuid = filter_input(INPUT_GET, 'channel_id', FILTER_SANITIZE_STRING);
-    $channel = FrontCore::$channels->get_channel($channel_uuid, 'uuid');
+    $channel = FrontCore::$channels->get_channel(['uuid' => $channel_uuid]);
 
     if (!$channel) {
       echo json_encode(['Channel not found']);

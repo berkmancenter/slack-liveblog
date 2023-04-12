@@ -17,10 +17,10 @@ class Channels {
 
   public function __construct() {
     global $wpdb;
+
     $this->database = $wpdb;
     // To get timestamp values in UTC
     $this->database->query('SET time_zone = \'+00:00\';');
-    $this->slack_client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
   }
 
   public function get_open_channels_slack_ids() {
@@ -39,23 +39,29 @@ class Channels {
     }
 
     $channel_name = strtolower($_POST['name']);
+    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_POST['workspace']]);
+    $client = ClientFactory::create($workspace->access_token);
+    $new_channel = $this->create_slack_channel($client, $channel_name, $workspace);
 
-    $new_channel = $this->create_slack_channel($channel_name);
-
-    $invite_result = $this->invite_user_to_channel($new_channel->getId(), $_POST['user-id']);
+    $invite_result = $this->invite_user_to_channel($client, $new_channel->getId(), $_POST['user-id']);
     if (!$invite_result) {
       throw new Exception('Failed to invite user to channel');
     }
 
-    $this->create_local_channel([
+    $new_channel_data = [
       'name' => $channel_name,
+      'uuid' => Helpers::get_uuid(),
       'slack_id' => $new_channel->getId(),
-      'user_id' => $_POST['user-id']
-    ]);
+      'owner_id' => $_POST['user-id'],
+      'workspace_id' => $workspace->id,
+      'refresh_interval' => $_POST['refresh-interval']
+    ];
+
+    Db::i()->insert_row('channels', $new_channel_data);
   }
 
-  public function create_slack_channel($name) {
-    $new_channel = $this->slack_client->conversationsCreate([
+  public function create_slack_channel($client, $name, $workspace) {
+    $new_channel = $client->conversationsCreate([
       'is_private' => true,
       'name' => $name
     ])->getChannel();
@@ -63,8 +69,8 @@ class Channels {
     return $new_channel;
   }
 
-  public function invite_user_to_channel($channel_id, $user_id) {
-    $invite_result = $this->slack_client->conversationsInvite([
+  public function invite_user_to_channel($client, $channel_id, $user_id) {
+    $invite_result = $client->conversationsInvite([
       'channel' => $channel_id,
       'users' => $user_id
     ]);
@@ -89,42 +95,16 @@ class Channels {
     return $this->database->get_results($query);
   }
 
-  public function get_channel($value, $field = 'id') {
-    return Db::i()->get_row('channels', ['*'], [$field => $value]);
-  }
-
-  public function create_local_channel($data) {
-    $query = "
-      INSERT INTO {$this->database->prefix}slack_liveblog_channels
-        (name, slack_id, owner_id)
-      VALUES
-        (%s, %s, %s)
-    ";
-
-    $query = $this->database->prepare(
-      $query,
-      [$data['name'], $data['slack_id'], $data['user_id']]
-    );
-
-    return $this->database->query($query);
+  public function get_channel($where) {
+    return Db::i()->get_row('channels', ['*'], $where);
   }
 
   public function create_local_message($data) {
-    $query = "
-      INSERT INTO {$this->database->prefix}slack_liveblog_channel_messages
-        (channel_id, message, author_id, slack_id)
-      VALUES
-        (%s, %s, %s, %s)
-    ";
+    Db::i()->insert_row('channel_messages', $data);
 
-    $query = $this->database->prepare(
-      $query,
-      [$data['channel_id'], $data['message'], $data['author_id'], $data['slack_id']]
-    );
+    $message_id = Db::i()->get_last_inserted_id();
 
-    $this->database->query($query);
-
-    return $this->get_message($this->database->insert_id);
+    return $this->get_message($message_id);
   }
 
   public function get_message($value, $field = 'id') {
@@ -139,8 +119,10 @@ class Channels {
     return $row;
   }
 
-  public function create_new_author($slack_id) {
-    $client = ClientFactory::create(PluginSettings::i()->get('settings_form_field_api_auth_token'));
+  public function create_new_author($slack_id, $workspace_id) {
+    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $workspace_id]);
+
+    $client = ClientFactory::create($workspace->access_token);
     $user = $client->usersInfo(
       [
         'user' => $slack_id
@@ -166,14 +148,14 @@ class Channels {
     return $this->get_author($new_author_id);
   }
 
-  public function get_or_create_author_by_slack_id($slack_id) {
+  public function get_or_create_author_by_slack_id($slack_id, $workspace_id) {
     $existing_author = $this->get_author($slack_id, 'slack_id');
 
     if ($existing_author) {
       return $existing_author;
     }
 
-    return $this->create_new_author($slack_id);
+    return $this->create_new_author($slack_id, $workspace_id);
   }
 
   public function get_channel_messages($channel_id) {

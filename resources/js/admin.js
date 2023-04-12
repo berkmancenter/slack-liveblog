@@ -5,18 +5,17 @@ const notifier = new AWN({
   position: 'top-right',
 })
 
-jQuery(document).on('click', '.slack-liveblog-channels-list-action', (ev) => {
+jQuery(document).on('click', '.slack-liveblog-ajax-action', (ev) => {
+  ev.preventDefault();
+
   const el = jQuery(ev.target)
-  const parentTr = el.parents('tr').first()
-  const channelId = parentTr.first().data('id')
-  const elementsToSubmit = parentTr.find(el.data('elements-submit'))
+  const elementsToSubmit = jQuery(el.data('elements-submit'))
   const successMessage = el.data('success-message')
   const successCallback = el.data('success-callback')
   const subAction = el.data('action')
   let body = ({
     action: 'slack_liveblog_admin',
     sub_action: subAction,
-    id: channelId,
   })
 
   elementsToSubmit.each((_index, element) => {
@@ -28,20 +27,23 @@ jQuery(document).on('click', '.slack-liveblog-channels-list-action', (ev) => {
   jQuery.post(
     ajaxurl,
     body,
-    () => {
+    (response) => {
       const callback = slackLiveblogAdminActionsCallbacks[successCallback]
 
       if (callback) {
-        callback()
+        callback(response)
       }
 
       notifier.success(successMessage)
     },
   )
+  .fail((response) => {
+    notifier.alert(response.responseJSON.error ?? 'Something went wrong.')
+  })
 })
 
 const slackLiveblogAdminActionsCallbacks = {
-  closedChange: () => {
+  closedChange: (response) => {
     const valueEl = jQuery('.slack-liveblog-channels-list-status')
     const linkEl = jQuery('[data-action="channel-toggle"]')
     const currentStatusEl = linkEl.prev()
@@ -56,5 +58,8 @@ const slackLiveblogAdminActionsCallbacks = {
       linkEl.text('Close')
       currentStatusEl.text('No')
     }
+  },
+  createdWorkspace: (response) => {
+    window.location.href = response.redirect_url
   }
 }

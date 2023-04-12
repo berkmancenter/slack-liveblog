@@ -5,7 +5,7 @@ namespace SlackLiveblog;
 class AdminCore {
   public static $menu = null;
   public static $channels = null;
-  public static $settings = null;
+  public static $workspaces = null;
   public static $db = null;
   public static $actions = null;
 
@@ -13,12 +13,12 @@ class AdminCore {
     // init modules
     self::$menu = new Menu();
     self::$channels = new Channels();
-    self::$settings = new Settings();
+    self::$workspaces = new Workspaces();
     self::$db = new Db();
     self::$actions = new AdminActions();
 
     add_action('admin_enqueue_scripts', array(self::class, 'add_assets'));
-    add_action('wp_ajax_slack_liveblog_admin', [self::$actions, 'ajax_actions']);
+    add_action('wp_ajax_slack_liveblog_admin', [self::$actions, 'slack_liveblog_ajax_actions']);
   }
 
   public static function add_assets() {

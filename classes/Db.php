@@ -100,4 +100,8 @@ class Db {
       return false;
     }
   }
+
+  public function get_last_inserted_id() {
+    return self::i()->db->insert_id;
+  }
 }
