@@ -78,7 +78,7 @@
   <tbody>
     <?php foreach ($variables['channels'] as $channel): ?>
       <?php
-        $slack_channel_url = "{$variables['slack_home_path']}/archives/{$channel->slack_id}";
+        $slack_channel_url = "https://app.slack.com/client/{$channel->workspace_team_id}/{$channel->slack_id}";
       ?>
       <tr data-id="<?php echo $channel->id ?>">
         <td><?php echo $channel->name ?></td>

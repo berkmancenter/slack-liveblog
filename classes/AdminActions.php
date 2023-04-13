@@ -25,19 +25,24 @@ class AdminActions {
 
   public function slack_liveblog_ajax_actions() {
     $response = [];
+    $sub_action = $_POST['sub_action'];
 
-    switch ($_POST['sub_action']) {
+    switch ($sub_action) {
       case 'channel-toggle':
-        $response = $this->toggle_channel($_POST['id']);
+        $response = $this->toggle_channel();
         break;
       case 'update-refresh-interval':
-        $response = $this->update_refresh_interval($_POST['id'], $_POST['refresh_interval']);
+        $response = $this->update_refresh_interval();
         break;
       case 'connect-workspace':
         $response = $this->connect_workspace();
         break;
     }
 
+    $this->send_json_response($response);
+  }
+
+  private function send_json_response($response) {
     header('Content-Type: application/json');
 
     if (isset($response['error'])) {
@@ -54,7 +59,6 @@ class AdminActions {
 
     Templates::load_template('channels', [
       'channels' => AdminCore::$channels->get_channels(),
-      'slack_home_path' => PluginSettings::i()->get('slack_liveblog_checkbox_field_team_home'),
       'current_url' => $current_url,
       'settings_url' => $settings_url,
       'workspaces' => AdminCore::$workspaces->get_workspaces()
@@ -69,15 +73,54 @@ class AdminActions {
     ]);
   }
 
-  private function toggle_channel($id) {
+  private function toggle_channel() {
+    $errors = [];
+
+    if (isset($_POST['id']) === false || empty($_POST['id'])) {
+      $errors[] = 'Channels id must be provided.';
+    }
+
+    if (count($errors) > 0) {
+      return [
+        'error' => join(' ', $errors)
+      ];
+    }
+
+    $id = $_POST['id'];
     $channel = Db::i()->get_row('channels', ['closed'], ['id' => $id]);
+
+    if (!$channel) {
+      return false;
+    }
+
     $new_status = $channel->closed === '1' ? '0' : '1';
 
-    return Db::i()->update_row('channels', ['closed' => $new_status], ['id' => $id]);
+    $update_result = Db::i()->update_row('channels', ['closed' => $new_status], ['id' => $id]);
+
+    return $update_result;
   }
 
-  private function update_refresh_interval($id, $refresh_interval) {
-    return Db::i()->update_row('channels', ['refresh_interval' => $refresh_interval], ['id' => $id]);
+  private function update_refresh_interval() {
+    if (isset($_POST['id']) === false || empty($_POST['id'])) {
+      $errors[] = 'Channels id must be provided.';
+    }
+
+    if (isset($_POST['refresh_interval']) === false || empty($_POST['refresh_interval'])) {
+      $errors[] = 'Refresh interval must be provided.';
+    }
+
+    if (count($errors) > 0) {
+      return [
+        'error' => join(' ', $errors)
+      ];
+    }
+
+    $id = $_POST['id'];
+    $refresh_interval = $_POST['refresh_interval'];
+
+    $update_result = Db::i()->update_row('channels', ['refresh_interval' => $refresh_interval], ['id' => $id]);
+
+    return $update_result;
   }
 
   private function connect_workspace() {
@@ -156,7 +199,18 @@ class AdminActions {
   }
 
   private function save_access_token() {
+    $workspace_id = $_GET['workspace_id'] ?? null;
+    $authorization_code = $_GET['code'] ?? null;
+
+    if (!$workspace_id || !$authorization_code) {
+      return false;
+    }
+
     $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_GET['workspace_id']]);
+
+    if (!$workspace) {
+      return false;
+    }
 
     $body = [
       'client_id' => $workspace->client_id,
@@ -170,10 +224,46 @@ class AdminActions {
     ];
 
     $response = wp_remote_post('https://slack.com/api/oauth.v2.access', $args);
+
+    if (is_wp_error($response)) {
+      return false;
+    }
+
     $response_body = json_decode($response['body']);
 
     if ($response_body->ok === true) {
       Db::i()->update_row('workspaces', ['access_token' => $response_body->access_token], ['id' => $workspace->id]);
+      $this->get_and_save_workspace_team_id($workspace->id);
     }
+
+    return true;
+  }
+
+  private function get_and_save_workspace_team_id($workspace_id) {
+    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $workspace_id]);
+
+    $body = [
+      'token' => $workspace->access_token
+    ];
+
+    $args = [
+      'body' => $body
+    ];
+
+    $response = wp_remote_post('https://slack.com/api/auth.teams.list', $args);
+
+    if (is_wp_error($response)) {
+      return false;
+    }
+
+    $response_body = json_decode($response['body']);
+
+    if ($response_body->ok !== true) {
+      return false;
+    }
+
+    Db::i()->update_row('workspaces', ['team_id' => $response_body->teams[0]->id], ['id' => $workspace->id]);
+
+    return true;
   }
 }

@@ -83,7 +83,8 @@ class Channels {
       SELECT
         ch.*,
         wo.name AS workspace_name,
-        wo.id AS workspace_id
+        wo.id AS workspace_id,
+        wo.team_id AS workspace_team_id
       FROM
         {$this->database->prefix}slack_liveblog_channels ch
       LEFT JOIN
