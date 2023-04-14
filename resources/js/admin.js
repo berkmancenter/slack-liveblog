@@ -31,7 +31,7 @@ jQuery(document).on('click', '.slack-liveblog-ajax-action', (ev) => {
       const callback = slackLiveblogAdminActionsCallbacks[successCallback]
 
       if (callback) {
-        callback(response)
+        callback(response, body)
       }
 
       notifier.success(successMessage)
@@ -43,9 +43,10 @@ jQuery(document).on('click', '.slack-liveblog-ajax-action', (ev) => {
 })
 
 const slackLiveblogAdminActionsCallbacks = {
-  closedChange: (response) => {
-    const valueEl = jQuery('.slack-liveblog-channels-list-status')
-    const linkEl = jQuery('[data-action="channel-toggle"]')
+  closedChange: (response, body) => {
+    const parent = jQuery(`tr[data-id="${body.id}"]`)
+    const valueEl = parent.find(`.slack-liveblog-channels-list-status-${body.id}`).first()
+    const linkEl = parent.find('[data-action="channel-toggle"]').first()
     const currentStatusEl = linkEl.prev()
     const updatedValue = valueEl.val()
 

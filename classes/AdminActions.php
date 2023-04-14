@@ -77,7 +77,7 @@ class AdminActions {
     $errors = [];
 
     if (isset($_POST['id']) === false || empty($_POST['id'])) {
-      $errors[] = 'Channels id must be provided.';
+      $errors[] = 'Channel id must be provided.';
     }
 
     if (count($errors) > 0) {

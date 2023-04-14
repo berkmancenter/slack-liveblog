@@ -82,7 +82,11 @@
       ?>
       <tr data-id="<?php echo $channel->id ?>">
         <td><?php echo $channel->name ?></td>
-        <td><?php echo $channel->slack_id ?></td>
+        <td>
+          <input type="hidden" class="slack-liveblog-channels-list-id-<?php echo $channel->id ?>" value="<?php echo $channel->id ?>" data-key="id">
+
+          <?php echo $channel->slack_id ?>
+        </td>
         <td>
           <a target="_blank" href=<?php echo $slack_channel_url ?>>
             <?php echo $slack_channel_url ?>
@@ -95,7 +99,6 @@
         <td>
           <div>
             <input type="number" min="1" value="<?php echo $channel->refresh_interval ?>" class="slack-liveblog-channels-list-refresh-interval slack-liveblog-channels-list-refresh-interval-<?php echo $channel->id ?>" data-key="refresh_interval"> sec
-            <input type="hidden" class="slack-liveblog-channels-list-id-<?php echo $channel->id ?>" value="<?php echo $channel->id ?>" data-key="id">
           </div>
           <a class="slack-liveblog-ajax-action slack-liveblog-channels-list-pointer"
              data-action="update-refresh-interval"
@@ -111,9 +114,9 @@
              data-action="channel-toggle"
              data-success-message="Closed status has been saved successfully."
              data-success-callback="closedChange"
-             data-elements-submit=".slack-liveblog-channels-list-status"
+             data-elements-submit=".slack-liveblog-channels-list-status-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
           ><?php echo SlackLiveblog\Helpers::get_channel_open_close($channel->closed) ?></a>
-          <input type="hidden" class="slack-liveblog-channels-list-status" value="<?php echo !$channel->closed ?>" data-key="status">
+          <input type="hidden" class="slack-liveblog-channels-list-status-<?php echo $channel->id ?>" value="<?php echo !$channel->closed ?>" data-key="status">
         </td>
       </tr>
     <?php endforeach ?>
