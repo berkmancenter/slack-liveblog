@@ -14,9 +14,11 @@ require(__DIR__ . '/upgrade.php');
 
 define('SLACK_LIVEBLOG_DIR_PATH', plugin_dir_path(__FILE__));
 
-// Load env variables
-$dotenv = new Symfony\Component\Dotenv\Dotenv();
-$dotenv->load(__DIR__.'/.env');
+// Load env variables if .env file does exist
+if (file_exists(__DIR__ . '/.env')) {
+  $dotenv = new Symfony\Component\Dotenv\Dotenv();
+  $dotenv->load(__DIR__ . '/.env');
+}
 
 // Start the core
 add_action('plugins_loaded', function () {
