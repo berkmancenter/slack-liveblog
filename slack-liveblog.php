@@ -34,10 +34,11 @@ register_activation_hook(__FILE__, 'slack_liveblog_install');
 // Trigger the upgrade script
 add_action('upgrader_process_complete', 'slack_liveblog_upgrade', 10, 2);
 
+add_filter('dbi_wp_migrations_path', function ($path) {
+  return __DIR__ . '/migrations';
+});
+
 // Setup db migrations in CLI
 if (defined('WP_CLI') && WP_CLI) {
-  add_filter('dbi_wp_migrations_path', function ($path) {
-    return __DIR__ . '/migrations';
-  });
   \DeliciousBrains\WPMigrations\Database\Migrator::instance('migrations');
 }

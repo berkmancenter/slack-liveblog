@@ -31,6 +31,7 @@ class AddIndexes extends AbstractMigration {
     ";
 
     mysqli_multi_query($wpdb->dbh, $sql);
+    while(mysqli_next_result($wpdb->dbh));
   }
 
   public function rollback() {
