@@ -7,7 +7,15 @@ function slack_liveblog_upgrade($upgrader_object, $options) {
         // Run db migrations
         $migrator = \DeliciousBrains\WPMigrations\Database\Migrator::instance();
         $migrator->run();
+
+        slack_liveblog_upgrade_tasks();
+
+        $plugin_data = get_plugin_data( __FILE__ );
+        $plugin_version = $plugin_data['Version'];
+        update_option('slack_liveblog_version', $plugin_version);
       }
     }
   }
 }
+
+function slack_liveblog_upgrade_tasks() {}
