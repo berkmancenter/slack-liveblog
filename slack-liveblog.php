@@ -1,10 +1,10 @@
 <?php
 
 /*
-Plugin Name: Slack liveblog
-Description: Slack liveblog plugin makes it possible to link a post/page in Wordpress with a Slack channel.
+Plugin Name: Slack Liveblog
+Description: Slack Liveblog is a WordPress plugin designed to bridge the gap between your WordPress website and your Slack workspace. The plugin allows you to establish a seamless connection between a specific WordPress post or page and a corresponding Slack channel, ensuring that every message, update, or edit made in the channel is synced in real-time to the WordPress post.
 Author: Harvard Law School, Berkman Klein Center
-Author URI: http://law.harvard.edu
+Author URI: https://cyber.harvard.edu
 Version: 1.0
 */
 
