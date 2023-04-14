@@ -10,6 +10,7 @@ Version: 1.0
 
 require 'vendor/autoload.php';
 require(__DIR__ . '/install.php');
+require(__DIR__ . '/upgrade.php');
 
 define('SLACK_LIVEBLOG_DIR_PATH', plugin_dir_path(__FILE__));
 
@@ -28,8 +29,10 @@ add_action('plugins_loaded', function () {
 
 // Trigger the install script on plugin activation
 register_activation_hook(__FILE__, 'slack_liveblog_install');
+// Trigger the upgrade script
+add_action('upgrader_process_complete', 'slack_liveblog_upgrade', 10, 2);
 
-// Setup db migrations
+// Setup db migrations in CLI
 if (defined('WP_CLI') && WP_CLI) {
   add_filter('dbi_wp_migrations_path', function ($path) {
     return __DIR__ . '/migrations';
