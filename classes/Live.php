@@ -26,7 +26,7 @@ class Live {
     $ws_url = null;
     if (@$_ENV['SLACK_LIVEBLOG_USE_WEBSOCKETS'] === 'true') {
       $use_websockets = 'true';
-      $ws_url = $_ENV['WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->uuid}";
+      $ws_url = $_ENV['SLACK_LIVEBLOG_WS_SERVER_CLIENT_URL'] . "?channel_id={$channel->uuid}";
     }
 
     $messages_url = get_site_url() . "?action=slack_liveblog_get_channel_messages&channel_id={$channel->uuid}";

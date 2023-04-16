@@ -2,14 +2,14 @@
 
 namespace SlackLiveblog;
 
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
 use Ratchet\MessageComponentInterface;
 use Ratchet\ConnectionInterface;
 use Ratchet\App;
 
 $dotenv = new \Symfony\Component\Dotenv\Dotenv();
-$dotenv->load(__DIR__.'/../.env');
+$dotenv->load('../.env');
 
 class WebsocketServer implements MessageComponentInterface {
   protected $clients;
@@ -51,6 +51,6 @@ class WebsocketServer implements MessageComponentInterface {
   }
 }
 
-$app = new App($_ENV['WS_SERVER_HOST'], $_ENV['WS_SERVER_PORT'] ?? 8080, '0.0.0.0');
+$app = new App($_ENV['SLACK_LIVEBLOG_WS_SERVER_HOST'], $_ENV['SLACK_LIVEBLOG_WS_SERVER_PORT'] ?? 8080, '0.0.0.0');
 $app->route('/ws', new WebsocketServer, array('*'));
 $app->run();

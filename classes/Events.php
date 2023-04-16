@@ -84,7 +84,7 @@ class Events {
     ]);
     $loop = \React\EventLoop\Loop::get();
     $connector = new \Ratchet\Client\Connector($loop, $react_connector);
-    $connector($_ENV['WS_SERVER_CLIENT_URL'])->then(function($conn) use ($message) {
+    $connector($_ENV['SLACK_LIVEBLOG_WS_SERVER_CLIENT_URL'])->then(function($conn) use ($message) {
       try {
         $conn->send(json_encode($message));
       } catch (\Exception $e) {
