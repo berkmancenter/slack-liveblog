@@ -11,3 +11,5 @@ composer.phar
 *.swp
 
 .env
+
+/dist/front/index.html

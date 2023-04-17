@@ -2,9 +2,8 @@
 
 use DeliciousBrains\WPMigrations\Database\AbstractMigration;
 use \SlackLiveblog\Db;
-use \SlackLiveblog\Helpers;
 
-class AddUuidToChannels extends AbstractMigration {
+class AddRefreshIntervalToChannels extends AbstractMigration {
   public function run() {
     global $wpdb;
 
@@ -12,13 +11,13 @@ class AddUuidToChannels extends AbstractMigration {
       ALTER TABLE
         {$wpdb->prefix}slack_liveblog_channels
       ADD COLUMN
-        uuid VARCHAR(36) NOT NULL;
+        refresh_interval SMALLINT NOT NULL;
     ";
     $wpdb->query($sql);
 
     $exisiting_channels = Db::i()->get_rows('channels');
     foreach ($exisiting_channels as $channel) {
-      Db::i()->update_row('channels', ['uuid' => Helpers::get_uuid()], ['id' => $channel->id]);
+      Db::i()->update_row('channels', ['refresh_interval' => 1], ['id' => $channel->id]);
     }
   }
 
@@ -28,7 +27,7 @@ class AddUuidToChannels extends AbstractMigration {
       ALTER TABLE
         {$wpdb->prefix}slack_liveblog_channels
       DROP COLUMN
-        uuid;
+        refresh_interval;
     ");
   }
 }

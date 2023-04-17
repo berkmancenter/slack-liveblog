@@ -31,10 +31,12 @@ class AddIndexes extends AbstractMigration {
     ";
 
     mysqli_multi_query($wpdb->dbh, $sql);
+    while(mysqli_next_result($wpdb->dbh));
   }
 
   public function rollback() {
     global $wpdb;
+
     $sql = "
       ALTER TABLE
         {$wpdb->prefix}slack_liveblog_channels

@@ -45,6 +45,15 @@ class Db {
     return $result;
   }
 
+  public function insert_row($model, $data) {
+    $prefix = self::i()->db->prefix;
+    $table = "{$prefix}slack_liveblog_$model";
+
+    $result = self::i()->db->insert($table, $data);
+
+    return $result;
+  }
+
   public function get_rows($model, $columns = ['*'], $where = [], $order = '', $limit = '') {
     $prefix = self::i()->db->prefix;
     $column_string = implode(", ", $columns);
@@ -90,5 +99,9 @@ class Db {
     } else {
       return false;
     }
+  }
+
+  public function get_last_inserted_id() {
+    return self::i()->db->insert_id;
   }
 }

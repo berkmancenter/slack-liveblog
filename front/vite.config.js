@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   build: {
@@ -9,8 +8,9 @@ export default defineConfig({
       output: {
         assetFileNames: '[name][extname]',
         entryFileNames: '[name].js',
-        chunkFileNames: '[name].js'
-      }
-    }
-  }
+        chunkFileNames: '[name].js',
+      },
+    },
+    outDir: '../dist/front',
+  },
 })

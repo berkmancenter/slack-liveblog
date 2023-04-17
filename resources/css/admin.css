@@ -13,3 +13,30 @@
 .toplevel_page_slack_liveblog_channels table.slack-liveblog-channels-list td {
   padding: 1rem 2rem;
 }
+
+.slack-liveblog-channels-list-refresh-interval {
+  width: 65px;
+}
+
+.slack-liveblog-channels-list-pointer {
+  cursor: pointer;
+}
+
+.slack-liveblog-connect-button {
+  align-items: center;
+  color: #fff;
+  background-color: #4A154B;
+  border: 0;
+  border-radius: 44px;
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  text-decoration: none;
+  width: 250px;
+}
+
+.slack-liveblog-connect-button:hover,
+.slack-liveblog-connect-button:focus,
+.slack-liveblog-connect-button:active {
+  color: #fff;
+}
