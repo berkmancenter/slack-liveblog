@@ -29,37 +29,6 @@ class Channels {
     return array_map(function ($c) { return $c->{'slack_id'}; }, $rows);
   }
 
-  public function create_new_channel() {
-    if (empty($_POST['name'])) {
-      throw new Exception('Channel name is required');
-    }
-
-    if (empty($_POST['user-id'])) {
-      throw new Exception('User ID is required');
-    }
-
-    $channel_name = strtolower($_POST['name']);
-    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_POST['workspace']]);
-    $client = ClientFactory::create($workspace->access_token);
-    $new_channel = $this->create_slack_channel($client, $channel_name, $workspace);
-
-    $invite_result = $this->invite_user_to_channel($client, $new_channel->getId(), $_POST['user-id']);
-    if (!$invite_result) {
-      throw new Exception('Failed to invite user to channel');
-    }
-
-    $new_channel_data = [
-      'name' => $channel_name,
-      'uuid' => Helpers::get_uuid(),
-      'slack_id' => $new_channel->getId(),
-      'owner_id' => $_POST['user-id'],
-      'workspace_id' => $workspace->id,
-      'refresh_interval' => $_POST['refresh-interval']
-    ];
-
-    Db::i()->insert_row('channels', $new_channel_data);
-  }
-
   public function create_slack_channel($client, $name, $workspace) {
     $new_channel = $client->conversationsCreate([
       'is_private' => true,

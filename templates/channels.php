@@ -20,21 +20,21 @@
                   <tr>
                     <th>Slack member ID</th>
                     <td>
-                      <input type="text" name="user-id" id="user-id" required>
+                      <input type="text" name="user-id" id="user-id" data-key="user-id" required>
                       <p class="description" id="tagline-description">Where to find it? Try this Medium <a target="_blank" href="https://moshfeu.medium.com/how-to-find-my-member-id-in-slack-workspace-d4bba942e38c">article</a>.</p>
                     </td>
                   </tr>
                   <tr>
                     <th>Channel name</th>
                     <td>
-                      <input type="text" name="name" id="name" required>
+                      <input type="text" name="name" id="name" data-key="name" required>
                       <p class="description" id="tagline-description">Channel names have a 21 character limit and can include lowercase letters, non-Latin characters, numbers and hyphens.</p>
                     </td>
                   </tr>
                   <tr>
                     <th>Workspace</th>
                     <td>
-                      <select name="workspace" id="workspace" required>
+                      <select name="workspace" id="workspace" data-key="workspace" required>
                       <?php foreach ($variables['workspaces'] as $workspace): ?>
                         <option value="<?php echo $workspace->id ?>"><?php echo $workspace->name ?></option>
                       <?php endforeach ?>
@@ -44,7 +44,7 @@
                   <tr>
                     <th>Refresh interval</th>
                     <td>
-                      <input type="number" name="refresh-interval" id="refresh-interval" value="3" min="1" required>
+                      <input type="number" name="refresh-interval" id="refresh-interval" data-key="refresh-interval" value="3" min="1" required>
                       <p class="description" id="tagline-description">How often messages refresh when users view the channel, in seconds.</p>
                     </td>
                   </tr>
@@ -52,7 +52,17 @@
               </table>
 
               <input type="hidden" name="action" id="action" value="channel-new">
-              <input type="submit" name="generate-new-channel" id="generate-new-channel" class="button button-primary" value="Generate new channel">
+
+              <button
+                class="slack-liveblog-button slack-liveblog-ajax-action"
+                data-action="channel-new"
+                data-elements-submit="#user-id,#name,#workspace,#refresh-interval"
+                data-success-message="New channel has been created successfully."
+                data-success-callback="createdChannel"
+              >
+                <img src="<?php echo plugins_url('slack-liveblog/resources/img/slack_logo.svg') ?>">
+                Create new channel
+              </button>
             </form>
           </p>
         <?php else: ?>
@@ -74,63 +84,8 @@
         <h2>Existing channels</h2>
       </div>
 
-      <div class="inside">
-        <table class="slack-liveblog-channels-list wp-list-table widefat fixed striped table-view-list">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Workspace</th>
-              <th>Slack url</th>
-              <th>Owner ID</th>
-              <th>Tag</th>
-              <th>Refresh interval</th>
-              <th>Closed</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php foreach ($variables['channels'] as $channel): ?>
-              <?php
-                $slack_channel_url = "https://app.slack.com/client/{$channel->workspace_team_id}/{$channel->slack_id}";
-              ?>
-              <tr data-id="<?php echo $channel->id ?>">
-                <td><?php echo $channel->name ?></td>
-                <td><?php echo $channel->workspace_name ?></td>
-                <td>
-                  <a target="_blank" href=<?php echo $slack_channel_url ?>>
-                    <?php echo $slack_channel_url ?>
-                  </a>
-                </td>
-                <td><?php echo $channel->owner_id ?></td>
-                <td>
-                  <input type="hidden" class="slack-liveblog-channels-list-id-<?php echo $channel->id ?>" value="<?php echo $channel->id ?>" data-key="id">
-                  [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
-                </td>
-                <td>
-                  <div>
-                    <input type="number" min="1" value="<?php echo $channel->refresh_interval ?>" class="slack-liveblog-channels-list-refresh-interval slack-liveblog-channels-list-refresh-interval-<?php echo $channel->id ?>" data-key="refresh_interval"> sec
-                  </div>
-                  <a class="slack-liveblog-ajax-action slack-liveblog-channels-list-pointer"
-                    data-action="update-refresh-interval"
-                    data-success-message="Refresh interval has been saved successfully."
-                    data-elements-submit=".slack-liveblog-channels-list-refresh-interval-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
-                  >Save</a>
-                </td>
-                <td>
-                  <div>
-                    <?php echo SlackLiveblog\Helpers::get_bool_yes_no($channel->closed) ?>
-                  </div>
-                  <a class="slack-liveblog-ajax-action slack-liveblog-channels-list-pointer"
-                    data-action="channel-toggle"
-                    data-success-message="Closed status has been saved successfully."
-                    data-success-callback="closedChange"
-                    data-elements-submit=".slack-liveblog-channels-list-status-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
-                  ><?php echo SlackLiveblog\Helpers::get_channel_open_close($channel->closed) ?></a>
-                  <input type="hidden" class="slack-liveblog-channels-list-status-<?php echo $channel->id ?>" value="<?php echo !$channel->closed ?>" data-key="status">
-                </td>
-              </tr>
-            <?php endforeach ?>
-          </tbody>
-        </table>
+      <div class="slack-liveblog-channels-parent inside">
+        <?php echo $variables['channels_list'] ?>
       </div>
   </div>
 </div>

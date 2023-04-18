@@ -1,6 +1,6 @@
 #toplevel_page_slack_liveblog_channels .wp-menu-image img {
-  height: 20px;
-  width: 20px;
+  height: 1rem;
+  width: 1rem;
   padding: 0;
 }
 
@@ -11,28 +11,35 @@
 }
 
 .slack-liveblog-channels-list-refresh-interval {
-  width: 65px;
+  width: 5rem;
 }
 
-.slack-liveblog-channels-list-pointer {
-  cursor: pointer;
-}
-
-.slack-liveblog-connect-button {
+.slack-liveblog-button {
+  padding: 0 1.5rem;
   align-items: center;
   color: #fff;
   background-color: #4A154B;
   border: 0;
-  border-radius: 44px;
+  border-radius: 2rem;
   display: inline-flex;
-  height: 44px;
+  height: 2.5rem;
   justify-content: center;
   text-decoration: none;
-  width: 250px;
+  cursor: pointer;
 }
 
-.slack-liveblog-connect-button:hover,
-.slack-liveblog-connect-button:focus,
-.slack-liveblog-connect-button:active {
+.slack-liveblog-pointer {
+  cursor: pointer;
+}
+
+.slack-liveblog-button img {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+.slack-liveblog-button:hover,
+.slack-liveblog-button:focus,
+.slack-liveblog-button:active {
   color: #fff;
 }

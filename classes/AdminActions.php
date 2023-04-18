@@ -2,12 +2,11 @@
 
 namespace SlackLiveblog;
 
+use JoliCode\Slack\ClientFactory;
+
 class AdminActions {
   public function slack_liveblog_admin_init() {
     switch (@$_REQUEST['action']) {
-      case 'channel-new':
-        AdminCore::$channels->create_new_channel();
-        break;
       case 'save-access-token':
         $this->save_access_token();
         break;
@@ -28,6 +27,9 @@ class AdminActions {
     $sub_action = $_POST['sub_action'];
 
     switch ($sub_action) {
+      case 'channel-new':
+        $response = $this->create_new_channel();
+        break;
       case 'channel-toggle':
         $response = $this->toggle_channel();
         break;
@@ -36,6 +38,9 @@ class AdminActions {
         break;
       case 'connect-workspace':
         $response = $this->connect_workspace();
+        break;
+      case 'channels-list':
+        $response = $this->channels_list();
         break;
     }
 
@@ -54,12 +59,14 @@ class AdminActions {
   }
 
   private function channels_view() {
-    $current_url = admin_url('admin.php?page=slack_liveblog_channels');
     $settings_url = admin_url('admin.php?page=slack_liveblog_settings');
 
-    Templates::load_template('channels', [
+    $channels_list = Templates::load_template('channels_list', [
       'channels' => AdminCore::$channels->get_channels(),
-      'current_url' => $current_url,
+    ], true);
+
+    Templates::load_template('channels', [
+      'channels_list' => $channels_list,
       'settings_url' => $settings_url,
       'workspaces' => AdminCore::$workspaces->get_workspaces()
     ]);
@@ -267,5 +274,60 @@ class AdminActions {
     Db::i()->update_row('workspaces', ['team_id' => $response_body->teams[0]->id], ['id' => $workspace->id]);
 
     return true;
+  }
+
+  private function create_new_channel() {
+    $errors = [];
+
+    if (isset($_POST['name']) === false || empty($_POST['name'])) {
+      $errors[] = 'Channel name must be provided.';
+    }
+
+    if (isset($_POST['user-id']) === false || empty($_POST['user-id'])) {
+      $errors[] = 'Slack member ID must be provided.';
+    }
+
+    if (count($errors) > 0) {
+      return [
+        'error' => join(' ', $errors)
+      ];
+    }
+
+    try {
+      $channel_name = strtolower($_POST['name']);
+      $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_POST['workspace']]);
+      $client = ClientFactory::create($workspace->access_token);
+      $new_channel = AdminCore::$channels->create_slack_channel($client, $channel_name, $workspace);
+  
+      $invite_result = AdminCore::$channels->invite_user_to_channel($client, $new_channel->getId(), $_POST['user-id']);
+      if (!$invite_result) {
+        throw new Exception('Failed to invite user to channel');
+      }
+  
+      $new_channel_data = [
+        'name' => $channel_name,
+        'uuid' => Helpers::get_uuid(),
+        'slack_id' => $new_channel->getId(),
+        'owner_id' => $_POST['user-id'],
+        'workspace_id' => $workspace->id,
+        'refresh_interval' => $_POST['refresh-interval']
+      ];
+  
+      Db::i()->insert_row('channels', $new_channel_data);
+    } catch(\Exception $e) {
+      error_log($e);
+
+      return [
+        'error' => 'Something went wrong, check if your Slack member ID is correct.'
+      ];
+    }
+  }
+
+  private function channels_list() {
+    $channels_list = Templates::load_template('channels_list', [
+      'channels' => AdminCore::$channels->get_channels(),
+    ], true);
+
+    return $channels_list;
   }
 }

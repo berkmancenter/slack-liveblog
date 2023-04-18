@@ -62,5 +62,19 @@ const slackLiveblogAdminActionsCallbacks = {
   },
   createdWorkspace: (response) => {
     window.location.href = response.redirect_url
-  }
+  },
+  createdChannel: (response) => {
+    const body = ({
+      action: 'slack_liveblog_admin',
+      sub_action: 'channels-list',
+    })
+
+    jQuery.post(
+      ajaxurl,
+      body,
+      (response) => {
+        jQuery('.slack-liveblog-channels-parent').html(response)
+      },
+    )
+  },
 }
