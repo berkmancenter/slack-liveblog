@@ -101,6 +101,8 @@ class AdminActions {
   }
 
   private function update_refresh_interval() {
+    $errors = [];
+
     if (isset($_POST['id']) === false || empty($_POST['id'])) {
       $errors[] = 'Channels id must be provided.';
     }
