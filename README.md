@@ -81,7 +81,7 @@ The front-end Vue application will rebuild automatically after every code change
 * To print Slack events to the standard output, simply set the `SLACK_LIVEBLOG_DEBUG` environment variable to `true`. This will provide you with valuable insights and help you troubleshoot any issues that may arise.
 * For multisite setups, add `--url=example.com` to `./vendor/bin/wp migrations migrate --setup` and `./vendor/bin/wp migrations migrate`. Replace `example.com` with your site's URL.
 
-## Using WebSocket server (optional).
+## Using WebSocket server (optional)
 
 ### Environment variables
 
