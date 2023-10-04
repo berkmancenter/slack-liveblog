@@ -1,5 +1,5 @@
 {
-  "name": "slack-liveblog",
+  "name": "liveblog-with-slack",
   "private": true,
   "version": "0.0.0",
   "type": "module",
