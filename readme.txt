@@ -82,7 +82,7 @@ After generating the new channel, return to Slack, and invite other users to the
 == Screenshots ==
 
 1. An example of how the live blog appears. Names of users, timestamps, and messages.
-2. The settings page for the plugin. Enter your API token, API secret, and Slack URL here.
+2. The settings page for the plugin. Add a new Workspace and Slack access token or view existing Workspace connections.
 3. The page for managing channels. Generate a new channel or manage existing ones here.
 
 == Changelog ==
