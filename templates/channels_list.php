@@ -6,6 +6,7 @@
       <th>Slack url</th>
       <th>Owner ID</th>
       <th>Tag</th>
+      <th>Messages sorting</th>
       <th>Refresh interval</th>
       <th>Closed</th>
     </tr>
@@ -27,6 +28,19 @@
         <td>
           <input type="hidden" class="slack-liveblog-channels-list-id-<?php echo $channel->id ?>" value="<?php echo $channel->id ?>" data-key="id">
           [slack_liveblog channel_id="<?php echo $channel->slack_id ?>"/]
+        </td>
+        <td>
+          <div>
+            <select value="<?php echo $channel->sorting ?>" class="slack-liveblog-channels-list-messages-sorting slack-liveblog-channels-list-messages-sorting-<?php echo $channel->id ?>" data-key="messages_sorting">
+              <option value="desc" <?php if ($channel->sorting === 'desc') { echo 'selected'; } ?>>Date descending</option>
+              <option value="asc" <?php if ($channel->sorting === 'asc') { echo 'selected'; } ?>>Date ascending</option>
+          </select>
+          </div>
+          <a class="slack-liveblog-ajax-action slack-liveblog-pointer"
+            data-action="update-messages-sorting"
+            data-success-message="Messages sorting has been saved successfully."
+            data-elements-submit=".slack-liveblog-channels-list-messages-sorting-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
+          >Save</a>
         </td>
         <td>
           <div>

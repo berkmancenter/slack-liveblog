@@ -43,3 +43,11 @@
 .slack-liveblog-button:active {
   color: #fff;
 }
+
+.slack-liveblog-channels-parent {
+  overflow-x: auto;
+}
+
+.slack-liveblog-channels-list {
+  min-width: 1440px;
+}

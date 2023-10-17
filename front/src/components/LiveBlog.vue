@@ -13,130 +13,147 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      messages: [],
-    }
-  },
-  props: {
-    wsUrl: {
-      type: String,
-      required: true,
-    },
-    messagesUrl: {
-      type: String,
-      required: true,
-    },
-    closed: {
-      type: Boolean,
-      required: true,
-    },
-    useWebsockets: {
-      type: Boolean,
-      required: false,
-    },
-    refreshInterval: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  computed: {
-    formatMessageTime() {
-      return function (created_at) {
-        if (!created_at) return '';
-        const date = new Date(Date.parse(created_at))
-        return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: true, hour: 'numeric', minute: 'numeric' })
+  import orderBy from 'lodash/orderBy'
+
+  export default {
+    data() {
+      return {
+        messages: [],
+        order: {},
       }
     },
-  },
-  mounted() {
-    const that = this
-    this.loadMessages()
+    props: {
+      wsUrl: {
+        type: String,
+        required: true,
+      },
+      messagesUrl: {
+        type: String,
+        required: true,
+      },
+      closed: {
+        type: Boolean,
+        required: true,
+      },
+      useWebsockets: {
+        type: Boolean,
+        required: false,
+      },
+      refreshInterval: {
+        type: Boolean,
+        required: true,
+      },
+      sorting: {
+        type: String,
+        required: true,
+      },
+    },
+    computed: {
+      formatMessageTime() {
+        return function (created_at) {
+          if (!created_at) {
+            return ''
+          }
 
-    if (this.closed === '1') {
-      return
-    }
-
-    if (this.useWebsockets) {
-      this.initWebSocket()
-    } else {
-      setInterval(() => that.loadMessages(), that.refreshInterval)
-    }
-  },
-  methods: {
-    initWebSocket() {
-      const socket = new WebSocket(this.wsUrl)
-      socket.onmessage = (event) => {
-        const message = JSON.parse(event.data)
-        switch (message.action) {
-          case 'message_new':
-            this.addMessage(message)
-            break
-          case 'message_deleted':
-            this.deleteMessage(message)
-            break
-          case 'message_changed':
-            this.updateMessage(message)
-            break
+          const date = new Date(Date.parse(created_at))
+          return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: true, hour: 'numeric', minute: 'numeric' })
         }
-      }
+      },
     },
-    loadMessages() {
-      fetch(this.messagesUrl)
-        .then(response => response.json())
-        .then(data => {
-          this.messages = data;
-        })
-        .catch(error => console.error(error))
-    },
-    addMessage(message) {
-      this.messages.unshift(message)
-    },
-    deleteMessage(message) {
-      this.messages = this.messages.filter(m => m.id !== message.id)
-    },
-    updateMessage(message) {
-      const index = this.messages.findIndex(m => m.id === message.id)
-      if (index !== -1) {
-        this.messages[index]['body'] = message.message
-      }
-    },
-    shouldShowAuthor(index) {
-      if (index === 0) {
-        // Always show the author of the first message
-        return true
+    mounted() {
+      const that = this
+      this.loadMessages()
+
+      if (this.closed === '1') {
+        return
       }
 
-      const prevMessage = this.messages[index - 1]
-      const currMessage = this.messages[index]
-      const prevAuthor = prevMessage && prevMessage.author
-      const currAuthor = currMessage && currMessage.author
-      const prevCreatedAt = prevMessage && prevMessage.created_at && Date.parse(prevMessage.created_at)
-      const currCreatedAt = currMessage && currMessage.created_at && Date.parse(currMessage.created_at)
-
-      // Show the author if the current message is the last one
-      if (index === this.messages.length - 1) {
-        return true
+      if (this.useWebsockets) {
+        this.initWebSocket()
+      } else {
+        setInterval(() => that.loadMessages(), that.refreshInterval)
       }
-
-      // Show the author if the previous message was written by a different author
-      if (prevAuthor !== currAuthor) {
-        return true
-      }
-
-      // Show the author if the previous message was written more than 10 minutes ago
-      const timeDiff = currCreatedAt && prevCreatedAt ? prevCreatedAt - currCreatedAt : 0
-      const minutesDiff = timeDiff / (1000 * 60)
-      if (minutesDiff >= 10) {
-        return true
-      }
-
-      // Otherwise, don't show the author
-      return false
     },
+    methods: {
+      initWebSocket() {
+        const socket = new WebSocket(this.wsUrl)
+        socket.onmessage = (event) => {
+          const message = JSON.parse(event.data)
+          switch (message.action) {
+            case 'message_new':
+              this.addMessage(message)
+              break
+            case 'message_deleted':
+              this.deleteMessage(message)
+              break
+            case 'message_changed':
+              this.updateMessage(message)
+              break
+          }
+        }
+      },
+      loadMessages() {
+        fetch(this.messagesUrl)
+          .then(response => response.json())
+          .then(data => {
+            this.messages = orderBy(data, 'created_at', [this.sorting])
+          })
+          .catch(error => console.error(error))
+      },
+      addMessage(message) {
+        this.messages.unshift(message)
+      },
+      deleteMessage(message) {
+        this.messages = this.messages.filter(m => m.id !== message.id)
+      },
+      updateMessage(message) {
+        const index = this.messages.findIndex(m => m.id === message.id)
+        if (index !== -1) {
+          this.messages[index]['body'] = message.message
+        }
+      },
+      shouldShowAuthor(index) {
+        if (index === 0) {
+          // Always show the author of the first message
+          return true
+        }
+
+        // Show the author if the current message is the last one
+        if (index === this.messages.length - 1) {
+          return true
+        }
+
+        const prevMessage = this.messages[index - 1]
+        const currMessage = this.messages[index]
+
+        const prevAuthor = prevMessage && prevMessage.author
+        const currAuthor = currMessage && currMessage.author
+        const prevCreatedAt = prevMessage && prevMessage.created_at && Date.parse(prevMessage.created_at)
+        const currCreatedAt = currMessage && currMessage.created_at && Date.parse(currMessage.created_at)
+
+        // Show the author if the previous message was written by a different author
+        if (prevAuthor !== currAuthor) {
+          return true
+        }
+
+        // Show the author if the previous message was written more than 10 minutes ago
+        let timeDiff
+        if (this.sorting === 'desc') {
+          timeDiff = currCreatedAt && prevCreatedAt ? prevCreatedAt - currCreatedAt : 0
+        } else {
+          timeDiff = currCreatedAt && prevCreatedAt ? currCreatedAt - prevCreatedAt : 0
+        }
+        const minutesDiff = timeDiff / (1000 * 60)
+
+        if (minutesDiff >= 10) {
+          return true
+        }
+
+        // Otherwise, don't show the author
+        return false
+      },
+    }
   }
-}
 </script>
 
 <style scoped lang="scss">

@@ -33,6 +33,9 @@ class AdminActions {
       case 'channel-toggle':
         $response = $this->toggle_channel();
         break;
+      case 'update-messages-sorting':
+        $response = $this->update_message_sorting();
+        break;
       case 'update-refresh-interval':
         $response = $this->update_refresh_interval();
         break;
@@ -107,11 +110,36 @@ class AdminActions {
     return $update_result;
   }
 
+  private function update_message_sorting() {
+    $errors = [];
+
+    if (isset($_POST['id']) === false || empty($_POST['id'])) {
+      $errors[] = 'Channel id must be provided.';
+    }
+
+    if (isset($_POST['messages_sorting']) === false || empty($_POST['messages_sorting'])) {
+      $errors[] = 'Messages sorting must be selected.';
+    }
+
+    if (count($errors) > 0) {
+      return [
+        'error' => join(' ', $errors)
+      ];
+    }
+
+    $id = $_POST['id'];
+    $messages_sorting = $_POST['messages_sorting'];
+
+    $update_result = Db::i()->update_row('channels', ['sorting' => $messages_sorting], ['id' => $id]);
+
+    return $update_result;
+  }
+
   private function update_refresh_interval() {
     $errors = [];
 
     if (isset($_POST['id']) === false || empty($_POST['id'])) {
-      $errors[] = 'Channels id must be provided.';
+      $errors[] = 'Channel id must be provided.';
     }
 
     if (isset($_POST['refresh_interval']) === false || empty($_POST['refresh_interval'])) {

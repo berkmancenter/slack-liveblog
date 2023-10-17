@@ -7,6 +7,7 @@
       :closed="closed"
       :useWebsockets="useWebsockets"
       :refreshInterval="refreshInterval"
+      :sorting="sorting"
     ></live-blog>
   </div>
 </template>
@@ -26,6 +27,7 @@ export default {
       closed: window.slack_liveblog_closed,
       useWebsockets: window.slack_liveblog_use_websockets,
       refreshInterval: window.slack_liveblog_refresh_interval,
+      sorting: window.slack_liveblog_sorting,
     }
   },
 }
