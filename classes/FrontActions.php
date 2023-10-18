@@ -16,7 +16,7 @@ class FrontActions {
       return;
     }
 
-    $channel_uuid = filter_input(INPUT_GET, 'channel_id', FILTER_SANITIZE_STRING);
+    $channel_uuid = preg_replace('/[^a-zA-Z0-9\-]/', '', filter_input(INPUT_GET, 'channel_id'));
     $channel = FrontCore::$channels->get_channel(['uuid' => $channel_uuid]);
 
     if (!$channel) {
