@@ -35,7 +35,7 @@
             data-success-message="New workspace has been connected successfully."
             data-success-callback="createdWorkspace"
           >
-            <img src="<?php echo plugins_url('slack-liveblog/resources/img/slack_logo.svg') ?>">
+            <img src="<?php echo plugins_url('liveblog-with-slack/resources/img/slack_logo.svg') ?>">
             Connect new Slack workspace
           </button>
         </form>

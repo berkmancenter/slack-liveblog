@@ -60,7 +60,7 @@
                 data-success-message="New channel has been created successfully."
                 data-success-callback="createdChannel"
               >
-                <img src="<?php echo plugins_url('slack-liveblog/resources/img/slack_logo.svg') ?>">
+                <img src="<?php echo plugins_url('liveblog-with-slack/resources/img/slack_logo.svg') ?>">
                 Create new channel
               </button>
             </form>
