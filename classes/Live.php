@@ -18,6 +18,8 @@ class Live {
 
     $channel = FrontCore::$channels->get_channel(['slack_id' => $atts['channel_id']]);
 
+    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $channel->workspace_id]);
+
     if (!$channel) {
       return '';
     }

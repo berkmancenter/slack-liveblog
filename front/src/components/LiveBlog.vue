@@ -156,7 +156,7 @@
   }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
   $slm: ".slack-liveblog-messages";
 
   #{$slm}-item-padding {
@@ -188,6 +188,15 @@
     padding: 1rem;
     border: 1px solid #bdb4b4;
     overflow-wrap: break-word;
+
+    img {
+      display: block;
+      max-width: 100%;
+      padding: 1rem;
+      border-radius: 1rem;
+      border: 1px solid #bdb4b4;
+      margin-bottom: 1rem;
+    }
   }
 
   #{$slm}-item-time {

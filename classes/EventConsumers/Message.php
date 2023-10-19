@@ -12,8 +12,7 @@ class Message extends Consumer {
     $slack_message_id = $this->data['event']['client_msg_id'];
     $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id, $local_channel->workspace_id);
 
-    $message_text = $this->get_message_from_blocks($this->data['event']['blocks']);
-    $message_text = $this->decorate_message($message_text);
+    $message_text = $this->get_message_text($this->data['event']);
 
     if (Db::i()->get_row('channel_messages', ['id'], ['slack_id' => $slack_message_id])) {
       return [];
