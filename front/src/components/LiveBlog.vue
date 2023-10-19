@@ -159,6 +159,10 @@
 <style lang="scss">
   $slm: ".slack-liveblog-messages";
 
+  #{$slm} * {
+    box-sizing: border-box;
+  }
+
   #{$slm}-item-padding {
     margin-bottom: 1rem;
   }
