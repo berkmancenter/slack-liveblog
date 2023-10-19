@@ -191,7 +191,8 @@
     border-radius: 1rem;
     padding: 1rem;
     border: 1px solid #bdb4b4;
-    overflow-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: normal;
 
     img {
       display: block;
