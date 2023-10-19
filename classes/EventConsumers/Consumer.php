@@ -73,7 +73,7 @@ abstract class Consumer {
     $files_text = '';
     $images = [];
     $image_mime_types = [
-      'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp',
+      'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/gif',
     ];
 
     foreach ($files as $file) {
