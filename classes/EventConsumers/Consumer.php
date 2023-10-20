@@ -44,7 +44,13 @@ abstract class Consumer {
 
   private function get_message_from_blocks($blocks) {
     $text_elements = $blocks[0]['elements'][0]['elements'];
-    $text_elements = array_map(function ($element) {
+    $urls = [];
+
+    $text_elements = array_map(function ($element) use (&$urls) {
+      if (isset($element['url'])) {
+        $urls[] = $element['url'];
+      }
+
       if (isset($element['text']) && isset($element['url'])) {
         return "<a href=\"{$element['url']}\" target=\"blank\">{$element['text']}</a>";
       }
@@ -60,8 +66,11 @@ abstract class Consumer {
 
     $merged_text = implode('', $text_elements);
 
+    $merged_text .= $this->get_social_media_embedded_elements($urls);
+
     return $merged_text;
   }
+
   private function decorate_message($message_text) {
     // Newlines to brs
     $message_text = nl2br($message_text);
@@ -133,5 +142,38 @@ abstract class Consumer {
     file_put_contents($new_file_path, wp_remote_retrieve_body($response));
 
     return plugins_url("liveblog-with-slack/files/{$filename}");
+  }
+
+  private function get_social_media_embedded_elements($urls) {
+    $embedded_text = '';
+
+    foreach ($urls as $url) {
+      $embed_code = $this->get_embed_code($url, [
+        'twitter' => 'https://publish.twitter.com/oembed?url=',
+        'mastodon' => 'https://mastodon.social/api/oembed?url=',
+        'youtube' => 'https://youtube.com/oembed?url=',
+      ]);
+
+      if ($embed_code) {
+        $embedded_text .= $embed_code;
+      }
+    }
+
+    return $embedded_text;
+  }
+
+  private function get_embed_code($link, $embed_endpoints) {
+    $embedded_html = '';
+
+    foreach ($embed_endpoints as $platform => $endpoint) {
+      $response = wp_remote_get("{$endpoint}{$link}&maxwidth=800");
+      $response_body = json_decode($response['body'], true);
+
+      if (isset($response_body['html'])) {
+        $embedded_html.= $response_body['html'];
+      }
+    }
+
+    return $embedded_html;
   }
 }
