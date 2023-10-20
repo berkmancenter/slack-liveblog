@@ -159,7 +159,11 @@ abstract class Consumer {
       }
     }
 
-    return "<div class=\"slack-liveblog-messages-embedded-items\">{$embedded_text}</div>";
+    if ($embedded_text) {
+      $embedded_text = "<div class=\"slack-liveblog-messages-embedded-items\">{$embedded_text}</div>";
+    }
+
+    return $embedded_text;
   }
 
   private function get_embed_code($link, $embed_endpoints) {
