@@ -149,17 +149,17 @@ abstract class Consumer {
 
     foreach ($urls as $url) {
       $embed_code = $this->get_embed_code($url, [
-        'twitter' => 'https://publish.twitter.com/oembed?url=',
+        'twitter' => 'https://publish.twitter.com/oembed?omit_script=true&url=',
         'mastodon' => 'https://mastodon.social/api/oembed?url=',
         'youtube' => 'https://youtube.com/oembed?url=',
       ]);
 
       if ($embed_code) {
-        $embedded_text .= $embed_code;
+        $embedded_text .= "<div class=\"slack-liveblog-messages-embedded-items-item\">{$embed_code}</div>";
       }
     }
 
-    return $embedded_text;
+    return "<div class=\"slack-liveblog-messages-embedded-items\">{$embedded_text}</div>";
   }
 
   private function get_embed_code($link, $embed_endpoints) {

@@ -207,4 +207,24 @@
   #{$slm}-item-time {
     margin-left: 1rem;
   }
+
+  #{$slm}-embedded-items {
+    margin-top: 0.5rem;
+
+    #{$slm}-embedded-items-item {
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .twitter-tweet {
+        margin: 0;
+      }
+
+      .twitter-tweet + br {
+        display: none;
+      }
+    }
+  }
 </style>

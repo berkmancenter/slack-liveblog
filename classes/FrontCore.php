@@ -24,5 +24,6 @@ class FrontCore {
     wp_enqueue_script('slack_liveblog_front_liveblog_index', plugins_url('dist/front/index.js', dirname(__FILE__)), array());
     wp_enqueue_style('slack_liveblog_front_liveblog', plugins_url('dist/front/index.css', dirname(__FILE__)), array());
     wp_enqueue_script('slack_liveblog_front_liveblog_mastodon_embed', plugins_url('resources/js/mastodon_embed.js', dirname(__FILE__)), array());
+    wp_enqueue_script('slack_liveblog_front_liveblog_twitter_embed', plugins_url('resources/js/twitter_embed.js', dirname(__FILE__)), array());
   }
 }

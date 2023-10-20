@@ -83,7 +83,7 @@ function mastodon_embed_init(loadNow = false) {
 
     if (mastodonEmbedInitiallyLoaded === false) {
       mastodonEmbedInitiallyLoaded = true;
-      setInterval(checkForNewMastodonIframes, 1000);
+      setInterval(checkForNewMastodonIframes, 2000);
     }
   });
 }
