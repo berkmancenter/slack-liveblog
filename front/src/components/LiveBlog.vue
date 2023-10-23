@@ -202,6 +202,7 @@
       border-radius: 1rem;
       border: 1px solid #bdb4b4;
       margin-bottom: 1rem;
+      background-color: #f0f8fc;
     }
   }
 
