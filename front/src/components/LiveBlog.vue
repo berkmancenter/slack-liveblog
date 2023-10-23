@@ -194,7 +194,8 @@
     overflow-wrap: anywhere;
     word-break: normal;
 
-    img {
+    img,
+    #{$slm}-embedded-items-item {
       display: block;
       max-width: 100%;
       padding: 1rem;
@@ -212,6 +213,11 @@
     margin-top: 0.5rem;
 
     #{$slm}-embedded-items-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      background-color: #f0f8fc;
       margin-bottom: 1rem;
 
       &:last-child {
