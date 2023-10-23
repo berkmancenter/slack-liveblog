@@ -24,15 +24,16 @@ class FrontActions {
       die();
     }
 
-    $channel_messages = FrontCore::$channels->get_channel_messages($channel->id);
-    $channel_messages = array_map(function ($message) {
+    $from_time_js = preg_replace('/[^0-9]/', '', filter_input(INPUT_GET, 'from'));
+    $from_time_unix = $from_time_js ? floor(intval($from_time_js) / 1000) : '';
+    $channel_messages = array_map(static function ($message) {
       return [
-        'id' => $message->id,
-        'body' => $message->message,
-        'author' => $message->name,
-        'created_at' => $message->created_at
+          'id' => $message->id,
+          'body' => $message->message,
+          'author' => $message->name,
+          'created_at' => $message->created_at,
       ];
-    }, $channel_messages);
+    }, FrontCore::$channels->get_channel_messages($channel->id, $from_time_unix));
 
     echo json_encode($channel_messages);
     die();

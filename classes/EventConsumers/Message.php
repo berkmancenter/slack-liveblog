@@ -18,11 +18,18 @@ class Message extends Consumer {
       return [];
     }
 
+    $js_timestamp = $this->data['event']['ts'];
+    $unix_timestamp = floor($js_timestamp);
+    $date_string = date('Y-m-d H:i:s.', $unix_timestamp);
+    $decimal_portion = sprintf('%03d', ($js_timestamp - $unix_timestamp) * 1000);
+    $timestamp = $date_string . $decimal_portion;
+
     $local_message = FrontCore::$channels->create_local_message([
       'channel_id' => $local_channel->id,
       'message' => $message_text,
       'author_id' => $author->id,
-      'slack_id' => $slack_message_id
+      'slack_id' => $slack_message_id,
+      'created_at' => $timestamp
     ]);
 
     $clients_message = [

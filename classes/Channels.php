@@ -128,7 +128,13 @@ class Channels {
     return $this->create_new_author($slack_id, $workspace_id);
   }
 
-  public function get_channel_messages($channel_id) {
+  public function get_channel_messages($channel_id, $from_time = '') {
+    $query_variables = [$channel_id];
+    if ($from_time) {
+      $query_variables[] = $from_time;
+      $from_time = "AND UNIX_TIMESTAMP(cm.created_at) >= %s";
+    }
+
     $query = "
       SELECT
         *,
@@ -142,13 +148,14 @@ class Channels {
         cm.author_id = a.id
       WHERE
         channel_id = %s
+        {$from_time}
       ORDER BY
         cm.created_at DESC
     ";
 
     $query = $this->database->prepare(
       $query,
-      [$channel_id]
+      $query_variables
     );
 
     return $this->database->get_results($query);

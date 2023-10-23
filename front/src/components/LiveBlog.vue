@@ -14,12 +14,14 @@
 
 <script>
   import orderBy from 'lodash/orderBy'
+  import uniqBy from 'lodash/uniqBy'
 
   export default {
     data() {
       return {
         messages: [],
         order: {},
+        lastLoadedTimestamp: null,
       }
     },
     props: {
@@ -40,7 +42,7 @@
         required: false,
       },
       refreshInterval: {
-        type: Boolean,
+        type: Number,
         required: true,
       },
       sorting: {
@@ -71,7 +73,10 @@
       if (this.useWebsockets) {
         this.initWebSocket()
       } else {
-        setInterval(() => that.loadMessages(), that.refreshInterval)
+        setInterval(
+          () => that.loadMessages(),
+          that.refreshInterval
+        )
       }
     },
     methods: {
@@ -93,10 +98,19 @@
         }
       },
       loadMessages() {
-        fetch(this.messagesUrl)
+        const apiUrl = this.lastLoadedTimestamp ? `${this.messagesUrl}&from=${this.lastLoadedTimestamp}` : this.messagesUrl
+
+        fetch(apiUrl)
           .then(response => response.json())
           .then(data => {
-            this.messages = orderBy(data, 'created_at', [this.sorting])
+            if (this.lastLoadedTimestamp) {
+              const newMessages = orderBy(uniqBy([...this.messages, ...data], 'id'), 'created_at', [this.sorting])
+              this.messages = newMessages
+            } else {
+              this.messages = orderBy(data, 'created_at', [this.sorting])
+            }
+
+            this.lastLoadedTimestamp = Date.now()
           })
           .catch(error => console.error(error))
       },
