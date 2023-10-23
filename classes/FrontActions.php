@@ -24,7 +24,7 @@ class FrontActions {
       die();
     }
 
-    $from_time_js = preg_replace('/[^0-9]/', '', filter_input(INPUT_GET, 'from'));
+    $from_time_js = preg_replace('/[^0-9]/', '', filter_input(INPUT_GET, 'from') ?? '');
     $from_time_unix = $from_time_js ? floor(intval($from_time_js) / 1000) : '';
     $channel_messages = array_map(static function ($message) {
       return [
