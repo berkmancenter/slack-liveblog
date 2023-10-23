@@ -12,7 +12,6 @@ function checkForNewMastodonIframes() {
 }
 
 function mastodon_embed_init(loadNow = false) {
-  console.log(111);
   /**
    * @param {() => void} loaded
    */
@@ -83,7 +82,7 @@ function mastodon_embed_init(loadNow = false) {
 
     if (mastodonEmbedInitiallyLoaded === false) {
       mastodonEmbedInitiallyLoaded = true;
-      setInterval(checkForNewMastodonIframes, 2000);
+      setInterval(checkForNewMastodonIframes, 1000);
     }
   });
 }

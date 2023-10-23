@@ -23,4 +23,4 @@ function checkForNewTwitterEmbeds() {
   }
 }
 
-setInterval(checkForNewTwitterEmbeds, 2000);
+setInterval(checkForNewTwitterEmbeds, 1000);
