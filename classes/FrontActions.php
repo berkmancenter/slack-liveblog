@@ -52,7 +52,7 @@ class FrontActions {
       'id' => $message->id,
       'body' => $message->message,
       'author' => $message->name,
-      'created_at' => $message->created_at,
+      'created_at' => $message->remote_created_at,
     ];
   }
 }

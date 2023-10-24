@@ -6,7 +6,7 @@ use SlackLiveblog\FrontCore;
 use SlackLiveblog\Db;
 
 class Message extends Consumer {
-  public function consume(): array {
+  public function consume() {
     $local_channel = FrontCore::$channels->get_channel(['slack_id' => $this->slack_channel_id]);
     $slack_user_id = $this->data['event']['user'];
     $slack_message_id = $this->data['event']['client_msg_id'];
@@ -23,13 +23,16 @@ class Message extends Consumer {
     $date_string = date('Y-m-d H:i:s.', $unix_timestamp);
     $decimal_portion = sprintf('%03d', ($js_timestamp - $unix_timestamp) * 1000);
     $timestamp = $date_string . $decimal_portion;
+    $now = date('Y-m-d H:i:s');
 
     $local_message = FrontCore::$channels->create_local_message([
       'channel_id' => $local_channel->id,
       'message' => $message_text,
       'author_id' => $author->id,
       'slack_id' => $slack_message_id,
-      'created_at' => $timestamp
+      'remote_created_at' => $timestamp,
+      'created_at' => $now,
+      'updated_at' => $now,
     ]);
 
     $clients_message = [
@@ -38,7 +41,7 @@ class Message extends Consumer {
       'body' => $message_text,
       'author' => $author->name,
       'created_at' => $local_message->created_at,
-      'id' => $local_message->id
+      'id' => $local_message->id,
     ];
 
     return [

@@ -26,7 +26,7 @@ export default {
       messagesUrl: window.slack_liveblog_messages_url,
       closed: window.slack_liveblog_closed,
       useWebsockets: window.slack_liveblog_use_websockets,
-      refreshInterval: window.slack_liveblog_refresh_interval,
+      refreshInterval: parseInt(window.slack_liveblog_refresh_interval),
       sorting: window.slack_liveblog_sorting,
     }
   },

@@ -11,7 +11,7 @@ abstract class Consumer {
   protected string $slack_channel_id;
   protected string $slack_api_access_key;
 
-  abstract public function consume(): array;
+  abstract public function consume();
 
   public function __construct(array $data, string $slack_channel_id) {
     $this->data = $data;

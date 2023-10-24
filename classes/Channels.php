@@ -77,8 +77,8 @@ class Channels {
     return $this->get_message($message_id);
   }
 
-  public function get_message($value, $field = 'id') {
-    $row =  Db::i()->get_row('channel_messages', ['*'], [$field => $value]);
+  public function get_message($value, $field = 'id', $conditions = []) {
+    $row =  Db::i()->get_row('channel_messages', ['*'], array_merge([$field => $value], $conditions));
 
     return $row;
   }

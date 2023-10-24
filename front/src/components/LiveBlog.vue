@@ -63,8 +63,7 @@
       },
     },
     mounted() {
-      const that = this
-      this.loadMessages()
+      this.initialLoadMessages()
 
       if (this.closed === '1') {
         return
@@ -74,8 +73,8 @@
         this.initWebSocket()
       } else {
         setInterval(
-          () => that.loadMessages(),
-          that.refreshInterval
+          () => { this.loadMessagesUpdates() },
+          this.refreshInterval
         )
       }
     },
@@ -97,8 +96,18 @@
           }
         }
       },
-      loadMessages() {
-        const apiUrl = this.lastLoadedTimestamp ? `${this.messagesUrl}&from=${this.lastLoadedTimestamp}` : this.messagesUrl
+      initialLoadMessages() {
+        this.lastLoadedTimestamp = Date.now()
+
+        fetch(this.messagesUrl)
+          .then(response => response.json())
+          .then(data => {
+              this.messages = orderBy(data.new, 'created_at', [this.sorting])
+          })
+          .catch(error => console.error(error))
+      },
+      loadMessagesUpdates() {
+        const apiUrl = `${this.messagesUrl}&from=${this.lastLoadedTimestamp}`
 
         fetch(apiUrl)
           .then(response => response.json())
@@ -108,13 +117,8 @@
             const deletedMessages = data.deleted
 
             if (incomingMessages.length > 0) {
-              if (this.lastLoadedTimestamp) {
-                const newMessages = orderBy(uniqBy([...this.messages, ...incomingMessages], 'id'), 'created_at', [this.sorting])
-                console.log(newMessages)
-                this.messages = newMessages
-              } else {
-                this.messages = orderBy(incomingMessages, 'created_at', [this.sorting])
-              }
+              const newMessages = orderBy(uniqBy([...this.messages, ...incomingMessages], 'id'), 'created_at', [this.sorting])
+              this.messages = newMessages
             }
 
             if (updatedMessages.length > 0) {
@@ -129,7 +133,7 @@
               })
             }
 
-            this.lastLoadedTimestamp = Date.now()
+            this.lastLoadedTimestamp += this.refreshInterval
           })
           .catch(error => console.error(error))
       },
@@ -259,7 +263,7 @@
       }
 
       .twitter-tweet {
-        margin: 0;
+        margin: 0 !important;
       }
 
       .twitter-tweet + br {
