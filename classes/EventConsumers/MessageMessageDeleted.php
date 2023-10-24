@@ -11,7 +11,12 @@ class MessageMessageDeleted extends Consumer {
     $local_channel_uuid = FrontCore::$channels->get_channel(['slack_id' => $this->slack_channel_id])->uuid;
     $local_message_id = FrontCore::$channels->get_message($slack_message_id, 'slack_id')->id;
 
-    Db::i()->delete_row('channel_messages', 'id', $local_message_id);
+    FrontCore::$channels->update_local_message([
+      'deleted' => '1',
+      'updated_at' => date('Y-m-d H:i:s')
+    ], [
+      'id' => $local_message_id
+    ]);
 
     $clients_message = [
       'action' => 'message_deleted',

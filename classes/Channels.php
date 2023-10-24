@@ -128,12 +128,31 @@ class Channels {
     return $this->create_new_author($slack_id, $workspace_id);
   }
 
-  public function get_channel_messages($channel_id, $from_time = '') {
-    $query_variables = [$channel_id];
+  public function get_channel_messages($channel_id, $from_time = false, $from_updated_time = false, $from_deleted_time = false) {
+    $query_variables = [];
+    $conditions = [];
+    $deleted = 'deleted = 0';
+
     if ($from_time) {
+      $conditions[] = "UNIX_TIMESTAMP(cm.created_at) >= %s";
       $query_variables[] = $from_time;
-      $from_time = "AND UNIX_TIMESTAMP(cm.created_at) >= %s";
     }
+
+    if ($from_updated_time) {
+      $conditions[] = "UNIX_TIMESTAMP(cm.updated_at) >= %s";
+      $query_variables[] = $from_updated_time;
+    }
+
+    if ($from_deleted_time) {
+      $deleted = 'deleted = 1';
+      $conditions[] = "UNIX_TIMESTAMP(cm.updated_at) >= %s";
+      $query_variables[] = $from_deleted_time;
+    }
+
+    $conditions[] = $deleted;
+
+    $conditions[] = "channel_id = %s";
+    $query_variables[] = $channel_id;
 
     $query = "
       SELECT
@@ -147,16 +166,12 @@ class Channels {
         ON
         cm.author_id = a.id
       WHERE
-        channel_id = %s
-        {$from_time}
+        " . implode(' AND ', $conditions) . "
       ORDER BY
         cm.created_at DESC
     ";
 
-    $query = $this->database->prepare(
-      $query,
-      $query_variables
-    );
+    $query = $this->database->prepare($query, $query_variables);
 
     return $this->database->get_results($query);
   }

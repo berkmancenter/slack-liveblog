@@ -103,11 +103,30 @@
         fetch(apiUrl)
           .then(response => response.json())
           .then(data => {
-            if (this.lastLoadedTimestamp) {
-              const newMessages = orderBy(uniqBy([...this.messages, ...data], 'id'), 'created_at', [this.sorting])
-              this.messages = newMessages
-            } else {
-              this.messages = orderBy(data, 'created_at', [this.sorting])
+            const incomingMessages = data.new
+            const updatedMessages = data.updated
+            const deletedMessages = data.deleted
+
+            if (incomingMessages.length > 0) {
+              if (this.lastLoadedTimestamp) {
+                const newMessages = orderBy(uniqBy([...this.messages, ...incomingMessages], 'id'), 'created_at', [this.sorting])
+                console.log(newMessages)
+                this.messages = newMessages
+              } else {
+                this.messages = orderBy(incomingMessages, 'created_at', [this.sorting])
+              }
+            }
+
+            if (updatedMessages.length > 0) {
+              updatedMessages.forEach(message => {
+                this.updateMessage(message)
+              })
+            }
+
+            if (deletedMessages.length > 0) {
+              deletedMessages.forEach(message => {
+                this.deleteMessage(message)
+              })
             }
 
             this.lastLoadedTimestamp = Date.now()
@@ -123,7 +142,7 @@
       updateMessage(message) {
         const index = this.messages.findIndex(m => m.id === message.id)
         if (index !== -1) {
-          this.messages[index]['body'] = message.message
+          this.messages[index] = message
         }
       },
       shouldShowAuthor(index) {

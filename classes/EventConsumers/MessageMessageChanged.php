@@ -13,7 +13,8 @@ class MessageMessageChanged extends Consumer {
     $message_text = $this->get_message_text($this->data['event']['message']);
 
     FrontCore::$channels->update_local_message([
-      'message' => $message_text
+      'message' => $message_text,
+      'updated_at' => date('Y-m-d H:i:s')
     ], [
       'id' => $local_message_id
     ]);

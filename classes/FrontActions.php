@@ -26,16 +26,33 @@ class FrontActions {
 
     $from_time_js = preg_replace('/[^0-9]/', '', filter_input(INPUT_GET, 'from') ?? '');
     $from_time_unix = $from_time_js ? floor(intval($from_time_js) / 1000) : '';
-    $channel_messages = array_map(static function ($message) {
-      return [
-          'id' => $message->id,
-          'body' => $message->message,
-          'author' => $message->name,
-          'created_at' => $message->created_at,
-      ];
-    }, FrontCore::$channels->get_channel_messages($channel->id, $from_time_unix));
+
+    $channel_messages = [];
+
+    $new_messages = FrontCore::$channels->get_channel_messages($channel->id, $from_time_unix);
+    $channel_messages['new'] = array_map([$this, 'formatMessage'], $new_messages);
+
+    if ($from_time_unix) {
+      $updated_messages = FrontCore::$channels->get_channel_messages($channel->id, false, $from_time_unix);
+      $channel_messages['updated'] = array_map([$this, 'formatMessage'], $updated_messages);
+
+      $deleted_messages = FrontCore::$channels->get_channel_messages($channel->id, false, false, $from_time_unix);
+      $channel_messages['deleted'] = array_map([$this, 'formatMessage'], $deleted_messages);
+    } else {
+      $channel_messages['updated'] = [];
+      $channel_messages['deleted'] = [];
+    }
 
     echo json_encode($channel_messages);
     die();
+  }
+
+  private function formatMessage($message) {
+    return [
+      'id' => $message->id,
+      'body' => $message->message,
+      'author' => $message->name,
+      'created_at' => $message->created_at,
+    ];
   }
 }
