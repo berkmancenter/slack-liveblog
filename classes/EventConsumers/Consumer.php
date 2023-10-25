@@ -62,6 +62,10 @@ abstract class Consumer {
       if (isset($element['url'])) {
         return "<a href=\"{$element['url']}\" target=\"blank\">{$element['url']}</a>";
       }
+
+      if (isset($element['type']) && $element['type'] === 'emoji') {
+        return "&#x{$element['unicode']}";
+      }
     }, $text_elements);
 
     $merged_text = implode('', $text_elements);

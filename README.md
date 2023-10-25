@@ -15,7 +15,7 @@ Slack Liveblog is a WordPress plugin designed to bridge the gap between your Wor
 ### Missing functionalities
 
 * Threads
-* Emojis
+* Reactions
 * Users avatars
 
 ## Stack
