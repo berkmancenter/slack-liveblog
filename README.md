@@ -9,20 +9,21 @@ Slack Liveblog is a WordPress plugin designed to bridge the gap between your Wor
 * New messages
 * Editing messages
 * Deleting messages
+* Fetching images
+* Fetching social media embedded elements (X, Mastodon, YouTube)
 
 ### Missing functionalities
 
 * Threads
 * Emojis
-* Images
 * Users avatars
 
 ## Stack
 Tested on  |  Version
 --|--
 PHP  |  `7.4.x`
-MySQL  |  `5.7.x` and `8.0.x`
-Wordpress  |  `5.7.x`
+MySQL  |  > `5.7.x`
+Wordpress  |  > `5.7.x`
 
 ## How to use
 
