@@ -378,7 +378,7 @@ class AdminActions {
       error_log($e);
 
       return [
-        'error' => 'Something went wrong, check if your Slack member ID is correct.'
+        'error' => 'Something went wrong.<br>Please double check your slack member ID and/or that the channel name you entered does not conflict with an existing channel name.'
       ];
     }
   }
