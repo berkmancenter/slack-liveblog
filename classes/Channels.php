@@ -19,8 +19,6 @@ class Channels {
     global $wpdb;
 
     $this->database = $wpdb;
-    // To get timestamp values in UTC
-    $this->database->query('SET time_zone = \'+00:00\';');
   }
 
   public function get_open_channels_slack_ids() {
@@ -128,13 +126,13 @@ class Channels {
     return $this->create_new_author($slack_id, $workspace_id);
   }
 
-  public function get_channel_messages($channel_id, $from_time = false, $from_updated_time = false, $from_deleted_time = false) {
+  public function get_channel_messages($channel_id, $from_time = false, $from_updated_time = false, $from_deleted_time = false, $published = true) {
     $query_variables = [];
     $conditions = [];
     $deleted = 'deleted = 0';
 
     if ($from_time) {
-      $conditions[] = "UNIX_TIMESTAMP(cm.created_at) >= %s";
+      $conditions[] = "UNIX_TIMESTAMP(cm.publish_at) >= %s";
       $query_variables[] = $from_time;
     }
 
@@ -153,6 +151,9 @@ class Channels {
 
     $conditions[] = "channel_id = %s";
     $query_variables[] = $channel_id;
+
+    $conditions[] = "published = %s";
+    $query_variables[] = true;
 
     $query = "
       SELECT
@@ -178,5 +179,21 @@ class Channels {
 
   public function update_local_message($data, $where) {
     return Db::i()->update_row('channel_messages', $data, $where);
+  }
+
+  public function publish_delayed_messages() {
+    $sql = "
+      UPDATE
+        {$this->database->prefix}slack_liveblog_channel_messages
+      SET
+        published = 1,
+        updated_at = CURRENT_TIMESTAMP(3)
+      WHERE
+        publish_at <= CURRENT_TIMESTAMP(3)
+        AND
+        published = 0;
+    ";
+
+    $this->database->query($sql);
   }
 }

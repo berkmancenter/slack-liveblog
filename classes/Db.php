@@ -12,6 +12,8 @@ class Db {
 
       self::$instance = new Db();
       self::$instance->db = $wpdb;
+      // To get timestamp values in UTC
+      self::$instance->db->query('SET time_zone = \'+00:00\';');
     }
 
     return self::$instance;
@@ -49,7 +51,37 @@ class Db {
     $prefix = self::i()->db->prefix;
     $table = "{$prefix}slack_liveblog_$model";
 
-    $result = self::i()->db->insert($table, $data);
+    $columns = [];
+    $values = [];
+    $value_placeholders = [];
+    $special_values = [];
+
+    foreach ($data as $key => $value) {
+        $columns[] = "`{$key}`";
+        if (is_string($value) && strpos(strtoupper($value), 'SQL_FUNC:') === 0) {
+            $func_value = substr($value, 9);
+            $placeholder = '##FUNC_' . count($special_values) . '##';
+            $special_values[$placeholder] = $func_value;
+            $value_placeholders[] = $placeholder;
+        } else {
+            $values[] = $value;
+            $value_placeholders[] = '%s';
+        }
+    }
+
+    $sql = sprintf(
+        "INSERT INTO `%s` (%s) VALUES (%s)",
+        $table,
+        implode(', ', $columns),
+        implode(', ', $value_placeholders)
+    );
+    $sql = self::i()->db->prepare($sql, $values);
+
+    foreach ($special_values as $placeholder => $func_value) {
+      $sql = str_replace($placeholder, $func_value, $sql);
+    }
+
+    $result = self::i()->db->query($sql);
 
     return $result;
   }

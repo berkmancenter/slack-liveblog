@@ -4,6 +4,7 @@ namespace SlackLiveblog\EventConsumers;
 
 use SlackLiveblog\FrontCore;
 use SlackLiveblog\Db;
+use SlackLiveblog\Helpers;
 
 class Message extends Consumer {
   public function consume() {
@@ -18,22 +19,24 @@ class Message extends Consumer {
       return [];
     }
 
-    $js_timestamp = $this->data['event']['ts'];
-    $unix_timestamp = floor($js_timestamp);
-    $date_string = date('Y-m-d H:i:s.', $unix_timestamp);
-    $decimal_portion = sprintf('%03d', ($js_timestamp - $unix_timestamp) * 1000);
-    $timestamp = $date_string . $decimal_portion;
-    $now = date('Y-m-d H:i:s');
+    $unix_remote_message_timestamp = $this->data['event']['ts'];
 
-    $local_message = FrontCore::$channels->create_local_message([
+    $local_channel_data = [
       'channel_id' => $local_channel->id,
       'message' => $message_text,
       'author_id' => $author->id,
       'slack_id' => $slack_message_id,
-      'remote_created_at' => $timestamp,
-      'created_at' => $now,
-      'updated_at' => $now,
-    ]);
+      'remote_created_at' => "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$unix_remote_message_timestamp}), '%Y-%m-%d %H:%i:%s.%f')",
+    ];
+
+    $delay = intval($local_channel->delay);
+    if ($delay && $delay > 0) {
+      $local_channel_data['published'] = false;
+      $publish_at = $unix_remote_message_timestamp + $delay;
+      $local_channel_data['publish_at'] = "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$publish_at}), '%Y-%m-%d %H:%i:%s.%f')";
+    }
+
+    $local_message = FrontCore::$channels->create_local_message($local_channel_data);
 
     $clients_message = [
       'action' => 'message_new',

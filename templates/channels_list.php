@@ -8,6 +8,7 @@
       <th>Tag</th>
       <th>Messages sorting</th>
       <th>Refresh interval</th>
+      <th>Message delay</th>
       <th>Closed</th>
     </tr>
   </thead>
@@ -50,6 +51,16 @@
             data-action="update-refresh-interval"
             data-success-message="Refresh interval has been saved successfully."
             data-elements-submit=".slack-liveblog-channels-list-refresh-interval-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
+          >Save</a>
+        </td>
+        <td>
+          <div>
+            <input type="number" min="1" step="1" value="<?php echo $channel->delay ?>" class="slack-liveblog-channels-list-delay slack-liveblog-channels-list-delay-<?php echo $channel->id ?>" data-key="delay"> sec
+          </div>
+          <a class="slack-liveblog-ajax-action slack-liveblog-pointer"
+            data-action="update-delay"
+            data-success-message="Message delay has been saved successfully."
+            data-elements-submit=".slack-liveblog-channels-list-delay-<?php echo $channel->id ?>,.slack-liveblog-channels-list-id-<?php echo $channel->id ?>"
           >Save</a>
         </td>
         <td>

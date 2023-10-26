@@ -31,4 +31,11 @@ class Helpers {
 
     return $status_label;
   }
+
+  public static function get_current_datetime_with_milliseconds() {
+    $date_time = new \DateTime();
+    $milliseconds = substr($date_time->format('u'), 0, 3);
+
+    return $date_time->format('Y-m-d H:i:s') . '.' . $milliseconds;
+  }
 }

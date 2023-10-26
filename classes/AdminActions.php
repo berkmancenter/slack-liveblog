@@ -39,6 +39,9 @@ class AdminActions {
       case 'update-refresh-interval':
         $response = $this->update_refresh_interval();
         break;
+      case 'update-delay':
+        $response = $this->update_delay();
+        break;
       case 'connect-workspace':
         $response = $this->connect_workspace();
         break;
@@ -156,6 +159,31 @@ class AdminActions {
     $refresh_interval = $_POST['refresh_interval'];
 
     $update_result = Db::i()->update_row('channels', ['refresh_interval' => $refresh_interval], ['id' => $id]);
+
+    return $update_result;
+  }
+
+  private function update_delay() {
+    $errors = [];
+
+    if (isset($_POST['id']) === false || empty($_POST['id'])) {
+      $errors[] = 'Channel id must be provided.';
+    }
+
+    if (isset($_POST['delay']) === false || empty($_POST['delay'])) {
+      $errors[] = 'Delay must be provided.';
+    }
+
+    if (count($errors) > 0) {
+      return [
+        'error' => join(' ', $errors)
+      ];
+    }
+
+    $id = $_POST['id'];
+    $delay = $_POST['delay'];
+
+    $update_result = Db::i()->update_row('channels', ['delay' => $delay], ['id' => $id]);
 
     return $update_result;
   }

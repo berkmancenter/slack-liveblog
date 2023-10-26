@@ -10,7 +10,8 @@
   align-items: center;
 }
 
-.slack-liveblog-channels-list-refresh-interval {
+.slack-liveblog-channels-list-refresh-interval,
+.slack-liveblog-channels-list-delay {
   width: 5rem;
 }
 

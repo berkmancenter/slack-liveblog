@@ -8,6 +8,7 @@ class FrontActions {
   }
 
   private function init_actions() {
+    FrontCore::$channels->publish_delayed_messages();
     $this->get_channel_messages();
   }
 
