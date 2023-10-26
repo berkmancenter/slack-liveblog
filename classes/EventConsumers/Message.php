@@ -4,7 +4,6 @@ namespace SlackLiveblog\EventConsumers;
 
 use SlackLiveblog\FrontCore;
 use SlackLiveblog\Db;
-use SlackLiveblog\Helpers;
 
 class Message extends Consumer {
   public function consume() {
