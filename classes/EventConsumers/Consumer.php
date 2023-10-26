@@ -27,7 +27,11 @@ abstract class Consumer {
     }
 
     if (isset($incoming_message['files'])) {
-      $message_text .= $this->get_files_text($incoming_message['files']);
+      $files_text = $this->get_files_text($incoming_message['files']);
+      if (empty($message_text) === false && empty($files_text) === false) {
+        $message_text .= '<br>';
+      }
+      $message_text .= $files_text;
     }
 
     $message_text = $this->decorate_message($message_text);
@@ -101,10 +105,6 @@ abstract class Consumer {
       $images_text .= '<img src="' . $image_url . '">';
     }
     $files_text .= $images_text;
-
-    if ($files_text) {
-      $files_text = "<br>{$files_text}";
-    }
 
     return $files_text;
   }
