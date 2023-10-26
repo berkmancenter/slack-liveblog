@@ -14,7 +14,6 @@ class AdminCore {
     self::$menu = new Menu();
     self::$channels = new Channels();
     self::$workspaces = new Workspaces();
-    self::$db = new Db();
     self::$actions = new AdminActions();
 
     add_action('admin_enqueue_scripts', array(self::class, 'add_assets'));

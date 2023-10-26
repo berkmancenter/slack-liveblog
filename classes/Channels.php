@@ -16,9 +16,7 @@ class Channels {
   private $slack_client;
 
   public function __construct() {
-    global $wpdb;
-
-    $this->database = $wpdb;
+    $this->database = Db::i()->get_db();
   }
 
   public function get_open_channels_slack_ids() {

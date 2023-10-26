@@ -13,11 +13,7 @@ class Workspaces {
   private $database;
 
   public function __construct() {
-    global $wpdb;
-
-    $this->database = $wpdb;
-    // To get timestamp values in UTC
-    $this->database->query('SET time_zone = \'+00:00\';');
+    $this->database = Db::i()->get_db();
   }
 
   public function get_workspaces() {

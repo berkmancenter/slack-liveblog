@@ -6,51 +6,46 @@ class Db {
   private static $instance = null;
   private $db = null;
 
+  private function __construct() {
+    global $wpdb;
+
+    $this->db = $wpdb;
+    $this->db->query('SET time_zone = \'+00:00\';');
+  }
+
   public static function i() {
     if (self::$instance === null) {
-      global $wpdb;
-
-      self::$instance = new Db();
-      self::$instance->db = $wpdb;
-      // To get timestamp values in UTC
-      self::$instance->db->query('SET time_zone = \'+00:00\';');
+      self::$instance = new self();
     }
 
     return self::$instance;
   }
 
   public function delete_row($model, $field = 'id', $value) {
-    $prefix = self::i()->db->prefix;
     $query = "
       DELETE FROM
-        {$prefix}slack_liveblog_$model
+        {$this->get_table($model)}
       WHERE
         $field = %s
     ";
 
-    $query = self::i()->db->prepare(
+    $query = $this->db->prepare(
       $query,
       [$value]
     );
 
-    $result =  self::i()->db->query($query);
+    $result =  $this->db->query($query);
 
     return $result;
   }
 
   public function update_row($model, $data, $where) {
-    $prefix = self::i()->db->prefix;
-    $table = "{$prefix}slack_liveblog_$model";
-
-    $result = self::i()->db->update($table, $data, $where);
+    $result = $this->db->update($this->get_table($model), $data, $where);
 
     return $result;
   }
 
   public function insert_row($model, $data) {
-    $prefix = self::i()->db->prefix;
-    $table = "{$prefix}slack_liveblog_$model";
-
     $columns = [];
     $values = [];
     $value_placeholders = [];
@@ -71,30 +66,29 @@ class Db {
 
     $sql = sprintf(
         "INSERT INTO `%s` (%s) VALUES (%s)",
-        $table,
+        $this->get_table($model),
         implode(', ', $columns),
         implode(', ', $value_placeholders)
     );
-    $sql = self::i()->db->prepare($sql, $values);
+    $sql = $this->db->prepare($sql, $values);
 
     foreach ($special_values as $placeholder => $func_value) {
       $sql = str_replace($placeholder, $func_value, $sql);
     }
 
-    $result = self::i()->db->query($sql);
+    $result = $this->db->query($sql);
 
     return $result;
   }
 
   public function get_rows($model, $columns = ['*'], $where = [], $order = '', $limit = '') {
-    $prefix = self::i()->db->prefix;
     $column_string = implode(", ", $columns);
 
     $query = "
       SELECT
         {$column_string}
       FROM
-        {$prefix}slack_liveblog_{$model}
+        {$this->get_table($model)}
     ";
 
     if (!empty($where)) {
@@ -116,9 +110,9 @@ class Db {
     }
 
     if (!empty($where_args)) {
-      $query = self::i()->db->prepare($query, $where_args);
+      $query = $this->db->prepare($query, $where_args);
     }
-    $result = self::i()->db->get_results($query);
+    $result = $this->db->get_results($query);
 
     return $result;
   }
@@ -134,6 +128,14 @@ class Db {
   }
 
   public function get_last_inserted_id() {
-    return self::i()->db->insert_id;
+    return $this->db->insert_id;
+  }
+
+  public function get_db() {
+    return $this->db;
+  }
+
+  private function get_table($model) {
+    return $this->db->prefix . "slack_liveblog_$model";
   }
 }

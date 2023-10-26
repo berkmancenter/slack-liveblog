@@ -14,7 +14,6 @@ class FrontCore {
     self::$events = new Events();
     self::$channels = new Channels();
     self::$live = new Live();
-    self::$db = new Db();
     self::$front_actions = new FrontActions();
 
     add_action('wp_enqueue_scripts', array(self::class, 'add_assets'));

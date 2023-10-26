@@ -170,7 +170,7 @@ class AdminActions {
       $errors[] = 'Channel id must be provided.';
     }
 
-    if (isset($_POST['delay']) === false || empty($_POST['delay'])) {
+    if (isset($_POST['delay']) === false || intval($_POST['delay']) < 0) {
       $errors[] = 'Delay must be provided.';
     }
 
