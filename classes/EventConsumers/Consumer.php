@@ -74,6 +74,18 @@ abstract class Consumer {
 
     $merged_text = implode('', $text_elements);
 
+    try {
+      $inline_images = $this->get_inline_images($urls);
+      if (empty($merged_text) === false && empty($inline_images) === false) {
+        $merged_text .= '<br>';
+      }
+      $merged_text .= $inline_images;
+    } catch (\Exception $e) {
+      error_log('[SlackLiveblog] Couldn\'t fetch in-text images.');
+      error_log("[SlackLiveblog] {$e->getTraceAsString()}");
+    }
+
+
     $merged_text .= $this->get_social_media_embedded_elements($urls);
 
     return $merged_text;
@@ -113,7 +125,7 @@ abstract class Consumer {
     $image_urls = [];
 
     foreach ($images as $image) {
-      $image_url = $this->fetch_image($image);
+      $image_url = $this->fetch_image_from_slack($image);
 
       if ($image_url) {
         $image_urls[] = $image_url;
@@ -123,7 +135,7 @@ abstract class Consumer {
     return $image_urls;
   }
 
-  private function fetch_image($image) {
+  private function fetch_image_from_slack($image) {
     if (isset($image['filetype']) === false) {
       return false;
     }
@@ -134,18 +146,9 @@ abstract class Consumer {
       ],
     );
 
-    $response = wp_remote_get($image['url_private'], $args);
+    $filepath = $this->save_image_locally($image['url_private'], $image['filetype'], $args);
 
-    if (is_wp_error($response)) {
-      return false;
-    }
-
-    $filename_uuid = Helpers::get_uuid();
-    $filename = "{$filename_uuid}.{$image['filetype']}";
-    $new_file_path = WP_PLUGIN_DIR . "/liveblog-with-slack/files/{$filename}";
-    file_put_contents($new_file_path, wp_remote_retrieve_body($response));
-
-    return plugins_url("liveblog-with-slack/files/{$filename}");
+    return $filepath;
   }
 
   private function get_social_media_embedded_elements($urls) {
@@ -183,5 +186,50 @@ abstract class Consumer {
     }
 
     return $embedded_html;
+  }
+
+  private function get_inline_images($urls) {
+    if (!empty($urls)) {
+      foreach ($urls as $url) {
+        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
+        if ($this->is_image_url($url, $extension)) {
+          $image_path = $this->save_image_locally($url, $extension);
+
+          if ($image_path) {
+            $image_urls[] = $image_path;
+          }
+        }
+      }
+    }
+
+    $images_text = '';
+    foreach ($image_urls as $image_url) {
+      $images_text .= '<img src="' . $image_url . '">';
+    }
+
+    return $images_text;
+  }
+
+  private function is_image_url($url, $extension) {
+    $image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+    return in_array($extension, $image_extensions);
+  }
+
+  private function save_image_locally($url, $extension, $args = []) {
+    $response = wp_remote_get($url, $args);
+
+    if (is_wp_error($response)) {
+      return false;
+    }
+
+    $image = wp_remote_retrieve_body($response);
+
+    $filename_uuid = Helpers::get_uuid();
+    $filename = "{$filename_uuid}.{$extension}";
+    $new_file_path = WP_PLUGIN_DIR . "/liveblog-with-slack/files/{$filename}";
+    file_put_contents($new_file_path, $image);
+
+    return plugins_url("liveblog-with-slack/files/{$filename}");
   }
 }
