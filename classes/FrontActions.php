@@ -2,16 +2,33 @@
 
 namespace SlackLiveblog;
 
+/**
+ * Class FrontActions
+ *
+ * Handles front-end actions for the plugin.
+ *
+ * @package SlackLiveblog
+ */
 class FrontActions {
   public function __construct() {
     $this->init_actions();
   }
 
+  /**
+   * Sets up actions.
+   *
+   * @return void
+   */
   private function init_actions() {
     FrontCore::$channels->publish_delayed_messages();
     $this->get_channel_messages();
   }
 
+  /**
+   * Fetches and outputs channel messages based on input parameters.
+   *
+   * @return void
+   */
   private function get_channel_messages() {
     if (($_GET['action'] ?? '') !== 'slack_liveblog_get_channel_messages' || !isset($_GET['channel_id'])) {
       return;
@@ -48,6 +65,12 @@ class FrontActions {
     die();
   }
 
+  /**
+   * Formats a message for output.
+   *
+   * @param object $message Message object.
+   * @return array Formatted message array.
+   */
   private function formatMessage($message) {
     return [
       'id' => $message->id,

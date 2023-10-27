@@ -6,48 +6,71 @@ use SlackLiveblog\FrontCore;
 use SlackLiveblog\Db;
 
 class Message extends Consumer {
+  /**
+   * Consumes a message and returns a formatted message body.
+   *
+   * @return array
+   */
   public function consume() {
-    $local_channel = FrontCore::$channels->get_channel(['slack_id' => $this->slack_channel_id]);
-    $slack_user_id = $this->data['event']['user'];
-    $slack_message_id = $this->data['event']['client_msg_id'];
-    $author = FrontCore::$channels->get_or_create_author_by_slack_id($slack_user_id, $local_channel->workspace_id);
+    $event_data = $this->data['event'];
 
-    $message_text = $this->get_message_text($this->data['event']);
+    $local_channel = $this->get_local_channel();
+    $author = $this->get_author($local_channel->workspace_id);
 
-    if (Db::i()->get_row('channel_messages', ['id'], ['slack_id' => $slack_message_id])) {
+    if ($this->message_exists($event_data['client_msg_id'])) {
       return [];
     }
 
-    $unix_remote_message_timestamp = $this->data['event']['ts'];
+    $local_message = $this->create_local_message($local_channel, $author, $event_data);
+    $clients_message = $this->prepare_clients_message($local_channel, $local_message, $author);
 
-    $local_channel_data = [
+    return [
+      'message_body' => $clients_message,
+    ];
+  }
+
+  private function get_local_channel() {
+    return FrontCore::$channels->get_channel(['slack_id' => $this->slack_channel_id]);
+  }
+
+  private function get_author($workspace_id) {
+    return FrontCore::$channels->get_or_create_author_by_slack_id($this->data['event']['user'], $workspace_id);
+  }
+
+  private function message_exists($slack_message_id) {
+    return Db::i()->get_row('channel_messages', ['id'], ['slack_id' => $slack_message_id]);
+  }
+
+  private function create_local_message($local_channel, $author, $event_data) {
+    $message_data = [
       'channel_id' => $local_channel->id,
-      'message' => $message_text,
+      'message' => $this->get_message_text($event_data),
       'author_id' => $author->id,
-      'slack_id' => $slack_message_id,
-      'remote_created_at' => "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$unix_remote_message_timestamp}), '%Y-%m-%d %H:%i:%s.%f')",
+      'slack_id' => $event_data['client_msg_id'],
+      'remote_created_at' => $this->format_unix_time($event_data['ts']),
     ];
 
     $delay = intval($local_channel->delay);
     if ($delay && $delay > 0) {
-      $local_channel_data['published'] = false;
-      $publish_at = $unix_remote_message_timestamp + $delay;
-      $local_channel_data['publish_at'] = "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$publish_at}), '%Y-%m-%d %H:%i:%s.%f')";
+      $message_data['published'] = false;
+      $message_data['publish_at'] = $this->format_unix_time($event_data['ts'] + $delay);
     }
+    
+    return FrontCore::$channels->create_local_message($message_data);
+  }
 
-    $local_message = FrontCore::$channels->create_local_message($local_channel_data);
+  private function format_unix_time($unix_timestamp) {
+    return "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$unix_timestamp}), '%Y-%m-%d %H:%i:%s.%f')";
+  }
 
-    $clients_message = [
+  private function prepare_clients_message($local_channel, $local_message, $author) {
+    return [
       'action' => 'message_new',
       'channel_id' => $local_channel->uuid,
-      'body' => $message_text,
+      'body' => $local_message->message,
       'author' => $author->name,
       'created_at' => $local_message->created_at,
       'id' => $local_message->id,
-    ];
-
-    return [
-      'message_body' => $clients_message
     ];
   }
 }

@@ -2,10 +2,24 @@
 
 namespace SlackLiveblog;
 
+/**
+ * Class Db
+ * 
+ * Singleton class to handle database interactions.
+ */
 class Db {
+  /** @var Db|null Single instance of the Db class. */
   private static $instance = null;
+
+  /** @var \wpdb|null Instance of the WordPress database abstraction class. */
   private $db = null;
 
+  /**
+   * Private constructor to prevent creating multiple instances.
+   * Sets up the connection with the WordPress database.
+   *
+   * @return void
+   */
   private function __construct() {
     global $wpdb;
 
@@ -13,6 +27,11 @@ class Db {
     $this->db->query('SET time_zone = \'+00:00\';');
   }
 
+  /**
+   * Get an instance of the Db class.
+   * 
+   * @return Db Single instance of the Db class.
+   */
   public static function i() {
     if (self::$instance === null) {
       self::$instance = new self();
@@ -21,6 +40,14 @@ class Db {
     return self::$instance;
   }
 
+  /**
+   * Delete a row from the specified model/table.
+   *
+   * @param string $model Model/table name.
+   * @param string $field Column name to match against.
+   * @param mixed $value Value to match against.
+   * @return int|false Number of rows affected or false on error.
+   */
   public function delete_row($model, $field = 'id', $value) {
     $query = "
       DELETE FROM
@@ -39,12 +66,27 @@ class Db {
     return $result;
   }
 
+  /**
+   * Update a row in the specified model/table.
+   *
+   * @param string $model Model/table name.
+   * @param array $data Associative array of column and value pairs.
+   * @param array $where Associative array of WHERE conditions.
+   * @return int|false Number of rows affected or false on error.
+   */
   public function update_row($model, $data, $where) {
     $result = $this->db->update($this->get_table($model), $data, $where);
 
     return $result;
   }
 
+  /**
+   * Insert a row into the specified model/table.
+   *
+   * @param string $model Model/table name.
+   * @param array $data Associative array of column and value pairs.
+   * @return int|false Number of rows affected or false on error.
+   */
   public function insert_row($model, $data) {
     $columns = [];
     $values = [];
@@ -81,6 +123,16 @@ class Db {
     return $result;
   }
 
+  /**
+   * Retrieve multiple rows from the specified model/table.
+   *
+   * @param string $model Model/table name.
+   * @param array $columns Columns to select.
+   * @param array $where Associative array to filter the rows.
+   * @param string $order ORDER BY clause.
+   * @param string $limit LIMIT clause.
+   * @return array|object|null Result set or null on error.
+   */
   public function get_rows($model, $columns = ['*'], $where = [], $order = '', $limit = '') {
     $column_string = implode(", ", $columns);
 
@@ -117,6 +169,15 @@ class Db {
     return $result;
   }
 
+  /**
+   * Retrieve a single row from the specified model/table.
+   *
+   * @param string $model Model/table name.
+   * @param array $columns Columns to select.
+   * @param array $where Associative array to filter the rows.
+   * @param string $order ORDER BY clause.
+   * @return object|false Result row or false if not found.
+   */
   public function get_row($model, $columns = ['*'], $where = [], $order = '') {
     $rows = self::get_rows($model, $columns, $where, $order, '1');
 
@@ -127,14 +188,30 @@ class Db {
     }
   }
 
+  /**
+   * Get the ID of the last inserted row.
+   *
+   * @return int Last inserted row's ID.
+   */
   public function get_last_inserted_id() {
     return $this->db->insert_id;
   }
 
+  /**
+   * Get the WordPress database abstraction instance.
+   *
+   * @return \wpdb wpdb instance.
+   */
   public function get_db() {
     return $this->db;
   }
 
+  /**
+   * Get the full table name with prefix for the specified model.
+   *
+   * @param string $model Model/table name without prefix.
+   * @return string Full table name with prefix.
+   */
   private function get_table($model) {
     return $this->db->prefix . "slack_liveblog_$model";
   }

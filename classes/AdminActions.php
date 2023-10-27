@@ -4,7 +4,26 @@ namespace SlackLiveblog;
 
 use JoliCode\Slack\ClientFactory;
 
+/**
+ * Class AdminActions
+ *
+ * Handles admin related actions for the plugin.
+ *
+ * @package SlackLiveblog
+ */
 class AdminActions {
+  /** @var \wpdb|null Instance of the WordPress database abstraction class. */
+  private $db;
+
+  public function __construct() {
+    $this->db = Db::i();
+  }
+
+  /**
+   * Initializes admin actions and views based on request parameters.
+   *
+   * @return void
+   */
   public function slack_liveblog_admin_init() {
     switch (@$_REQUEST['action']) {
       case 'save-access-token':
@@ -22,6 +41,11 @@ class AdminActions {
     }
   }
 
+  /**
+   * Initializes ajax admin actions based on request parameters.
+   *
+   * @return void
+   */
   public function slack_liveblog_ajax_actions() {
     $response = [];
     $sub_action = $_POST['sub_action'];
@@ -53,6 +77,11 @@ class AdminActions {
     $this->send_json_response($response);
   }
 
+  /**
+   * Sends a JSON response.
+   *
+   * @param array $response Response data.
+   */
   private function send_json_response($response) {
     header('Content-Type: application/json');
 
@@ -64,6 +93,11 @@ class AdminActions {
     die();
   }
 
+  /**
+   * Displays the channels view.
+   *
+   * @return void
+   */
   private function channels_view() {
     $settings_url = admin_url('admin.php?page=slack_liveblog_settings');
 
@@ -78,6 +112,11 @@ class AdminActions {
     ]);
   }
 
+  /**
+   * Displays the settings view.
+   *
+   * @return void
+   */
   private function settings_view() {
     $workspaces = AdminCore::$workspaces->get_workspaces();
 
@@ -86,6 +125,11 @@ class AdminActions {
     ]);
   }
 
+  /**
+   * Toggle channel status.
+   * 
+   * @return array|bool Result of the operation.
+   */
   private function toggle_channel() {
     $errors = [];
 
@@ -100,7 +144,7 @@ class AdminActions {
     }
 
     $id = $_POST['id'];
-    $channel = Db::i()->get_row('channels', ['closed'], ['id' => $id]);
+    $channel = $this->db->get_row('channels', ['closed'], ['id' => $id]);
 
     if (!$channel) {
       return false;
@@ -108,11 +152,16 @@ class AdminActions {
 
     $new_status = $channel->closed === '1' ? '0' : '1';
 
-    $update_result = Db::i()->update_row('channels', ['closed' => $new_status], ['id' => $id]);
+    $update_result = $this->db->update_row('channels', ['closed' => $new_status], ['id' => $id]);
 
     return $update_result;
   }
 
+  /**
+   * Updates the message sorting preference for a specific channel.
+   *
+   * @return array Result of the operation, including any error messages if applicable.
+   */
   private function update_message_sorting() {
     $errors = [];
 
@@ -133,11 +182,16 @@ class AdminActions {
     $id = $_POST['id'];
     $messages_sorting = $_POST['messages_sorting'];
 
-    $update_result = Db::i()->update_row('channels', ['sorting' => $messages_sorting], ['id' => $id]);
+    $update_result = $this->db->update_row('channels', ['sorting' => $messages_sorting], ['id' => $id]);
 
     return $update_result;
   }
 
+  /**
+   * Updates the message refresh interval for a specific channel.
+   *
+   * @return array Result of the operation, including any error messages if applicable.
+   */
   private function update_refresh_interval() {
     $errors = [];
 
@@ -158,11 +212,16 @@ class AdminActions {
     $id = $_POST['id'];
     $refresh_interval = $_POST['refresh_interval'];
 
-    $update_result = Db::i()->update_row('channels', ['refresh_interval' => $refresh_interval], ['id' => $id]);
+    $update_result = $this->db->update_row('channels', ['refresh_interval' => $refresh_interval], ['id' => $id]);
 
     return $update_result;
   }
 
+  /**
+   * Updates the delay setting for a specific channel.
+   *
+   * @return array Result of the operation, including any error messages if applicable.
+   */
   private function update_delay() {
     $errors = [];
 
@@ -187,11 +246,16 @@ class AdminActions {
     $id = $_POST['id'];
     $delay = $_POST['delay'];
 
-    $update_result = Db::i()->update_row('channels', ['delay' => $delay], ['id' => $id]);
+    $update_result = $this->db->update_row('channels', ['delay' => $delay], ['id' => $id]);
 
     return $update_result;
   }
 
+  /**
+   * Initiates the connection of a new Slack workspace.
+   *
+   * @return array Result of the operation, including any error messages if applicable.
+   */
   private function connect_workspace() {
     $errors = [];
 
@@ -214,9 +278,9 @@ class AdminActions {
         'name' => $_POST['workspace_name']
       ];
 
-      Db::i()->insert_row('workspaces', $new_workspace_data);
+      $this->db->insert_row('workspaces', $new_workspace_data);
 
-      $new_workspace_id = Db::i()->get_last_inserted_id();
+      $new_workspace_id = $this->db->get_last_inserted_id();
       $redirect_callback_uri = admin_url("admin.php?page=slack_liveblog_settings&action=save-access-token&workspace_id={$new_workspace_id}");
       $redirect_callback_uri_encoded = urlencode(admin_url("admin.php?page=slack_liveblog_settings&action=save-access-token&workspace_id={$new_workspace_id}"));
       $app_manifest = file_get_contents(SLACK_LIVEBLOG_DIR_PATH . 'slack_app_manifest.json');
@@ -252,7 +316,7 @@ class AdminActions {
         'signing_secret' => $response_body->credentials->signing_secret
       ];
 
-      Db::i()->update_row('workspaces', $data, ['id' => $new_workspace_id]);
+      $this->db->update_row('workspaces', $data, ['id' => $new_workspace_id]);
 
       return [
         'success' => 'New workspace has been connected.',
@@ -267,6 +331,11 @@ class AdminActions {
     }
   }
 
+  /**
+   * Saves the access token for a Slack workspace after receiving an authorization code.
+   *
+   * @return bool True if operation succeeds, false otherwise.
+   */
   private function save_access_token() {
     $workspace_id = $_GET['workspace_id'] ?? null;
     $authorization_code = $_GET['code'] ?? null;
@@ -275,7 +344,7 @@ class AdminActions {
       return false;
     }
 
-    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_GET['workspace_id']]);
+    $workspace = $this->db->get_row('workspaces', ['*'], ['id' => $_GET['workspace_id']]);
 
     if (!$workspace) {
       return false;
@@ -301,15 +370,21 @@ class AdminActions {
     $response_body = json_decode($response['body']);
 
     if ($response_body->ok === true) {
-      Db::i()->update_row('workspaces', ['access_token' => $response_body->access_token], ['id' => $workspace->id]);
+      $this->db->update_row('workspaces', ['access_token' => $response_body->access_token], ['id' => $workspace->id]);
       $this->get_and_save_workspace_team_id($workspace->id);
     }
 
     return true;
   }
 
+  /**
+   * Retrieves and saves the team ID of a Slack workspace.
+   *
+   * @param int $workspace_id The ID of the workspace in the database.
+   * @return bool True if operation succeeds, false otherwise.
+   */
   private function get_and_save_workspace_team_id($workspace_id) {
-    $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $workspace_id]);
+    $workspace = $this->db->get_row('workspaces', ['*'], ['id' => $workspace_id]);
 
     $body = [
       'token' => $workspace->access_token
@@ -331,11 +406,16 @@ class AdminActions {
       return false;
     }
 
-    Db::i()->update_row('workspaces', ['team_id' => $response_body->teams[0]->id], ['id' => $workspace->id]);
+    $this->db->update_row('workspaces', ['team_id' => $response_body->teams[0]->id], ['id' => $workspace->id]);
 
     return true;
   }
 
+  /**
+   * Creates a new Slack channel and associates it with a workspace.
+   *
+   * @return array Result of the operation, including any error messages if applicable.
+   */
   private function create_new_channel() {
     $errors = [];
 
@@ -355,7 +435,7 @@ class AdminActions {
 
     try {
       $channel_name = strtolower($_POST['name']);
-      $workspace = Db::i()->get_row('workspaces', ['*'], ['id' => $_POST['workspace']]);
+      $workspace = $this->db->get_row('workspaces', ['*'], ['id' => $_POST['workspace']]);
       $client = ClientFactory::create($workspace->access_token);
       $new_channel = AdminCore::$channels->create_slack_channel($client, $channel_name, $workspace);
   
@@ -373,7 +453,7 @@ class AdminActions {
         'refresh_interval' => $_POST['refresh-interval']
       ];
   
-      Db::i()->insert_row('channels', $new_channel_data);
+      $this->db->insert_row('channels', $new_channel_data);
     } catch(\Exception $e) {
       error_log($e);
 
@@ -383,6 +463,11 @@ class AdminActions {
     }
   }
 
+  /**
+   * Retrieves a list of channels.
+   *
+   * @return string HTML content of the channels list.
+   */
   private function channels_list() {
     $channels_list = Templates::load_template('channels_list', [
       'channels' => AdminCore::$channels->get_channels(),

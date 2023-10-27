@@ -51,44 +51,37 @@ abstract class Consumer {
     $urls = [];
 
     $text_elements = array_map(function ($element) use (&$urls) {
-      if (isset($element['url'])) {
-        $urls[] = $element['url'];
-      }
-
-      if (isset($element['text']) && isset($element['url'])) {
-        return "<a href=\"{$element['url']}\" target=\"blank\">{$element['text']}</a>";
-      }
-
-      if (isset($element['text'])) {
-        return $element['text'];
-      }
-
-      if (isset($element['url'])) {
-        return "<a href=\"{$element['url']}\" target=\"blank\">{$element['url']}</a>";
-      }
-
-      if (isset($element['type']) && $element['type'] === 'emoji') {
-        return "&#x{$element['unicode']}";
-      }
+      return $this->format_element_text($element, $urls);
     }, $text_elements);
 
     $merged_text = implode('', $text_elements);
-
-    try {
-      $inline_images = $this->get_inline_images($urls);
-      if (empty($merged_text) === false && empty($inline_images) === false) {
-        $merged_text .= '<br>';
-      }
-      $merged_text .= $inline_images;
-    } catch (\Exception $e) {
-      error_log('[SlackLiveblog] Couldn\'t fetch in-text images.');
-      error_log("[SlackLiveblog] {$e->getTraceAsString()}");
-    }
-
-
-    $merged_text .= $this->get_social_media_embedded_elements($urls);
+    $merged_text .= $this->get_embedded_content($urls);
 
     return $merged_text;
+  }
+
+  private function format_element_text($element, &$urls) {
+    if (isset($element['url'])) {
+      $urls[] = $element['url'];
+    }
+
+    if (isset($element['text']) && isset($element['url'])) {
+      return '<a href="' . $element['url'] . '" target="blank">' . $element['text'] . '</a>';
+    }
+
+    if (isset($element['text'])) {
+      return $element['text'];
+    }
+
+    if (isset($element['url'])) {
+      return '<a href="' . $element['url'] . '" target="blank">' . $element['url'] . '</a>';
+    }
+
+    if (isset($element['type']) && $element['type'] === 'emoji') {
+      return '&#x' . $element['unicode'];
+    }
+
+    return '';
   }
 
   private function decorate_message($message_text) {
@@ -98,8 +91,22 @@ abstract class Consumer {
     return $message_text;
   }
 
+  private function get_embedded_content($urls) {
+    $embedded_text = $this->get_social_media_embedded_elements($urls);
+    $inline_images = $this->get_inline_images($urls);
+
+    if (empty($embedded_text) === false) {
+      return '<br>' . $embedded_text;
+    }
+
+    if (empty($inline_images) === false) {
+      return '<br>' . $inline_images;
+    }
+
+    return '';
+  }
+
   private function get_files_text($files) {
-    $files_text = '';
     $images = [];
     $image_mime_types = [
       'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/gif',
@@ -111,28 +118,16 @@ abstract class Consumer {
       }
     }
 
-    $image_urls = $this->get_images_urls($images);
-    $images_text = '';
-    foreach ($image_urls as $image_url) {
-      $images_text .= '<img src="' . $image_url . '">';
-    }
-    $files_text .= $images_text;
+    $urls = $this->get_images_urls($images);
+    $files_text = $this->create_img_elements($urls);
 
     return $files_text;
   }
 
   private function get_images_urls($images) {
-    $image_urls = [];
-
-    foreach ($images as $image) {
-      $image_url = $this->fetch_image_from_slack($image);
-
-      if ($image_url) {
-        $image_urls[] = $image_url;
-      }
-    }
-
-    return $image_urls;
+    return array_filter(array_map(function ($image) {
+      return $this->fetch_image_from_slack($image);
+    }, $images));
   }
 
   private function fetch_image_from_slack($image) {
@@ -189,28 +184,22 @@ abstract class Consumer {
   }
 
   private function get_inline_images($urls) {
-    if (!empty($urls)) {
-      foreach ($urls as $url) {
-        $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
-        if ($this->is_image_url($url, $extension)) {
-          $image_path = $this->save_image_locally($url, $extension);
+    $image_urls = array_filter(array_map(function ($url) {
+      $extension = strtolower(pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION));
 
-          if ($image_path) {
-            $image_urls[] = $image_path;
-          }
-        }
+      if ($this->is_image_url($extension)) {
+        return $this->save_image_locally($url, $extension);
       }
-    }
 
-    $images_text = '';
-    foreach ($image_urls as $image_url) {
-      $images_text .= '<img src="' . $image_url . '">';
-    }
+      return null;
+    }, $urls));
 
-    return $images_text;
+    $inline_images = $this->create_img_elements($image_urls);
+
+    return $inline_images;
   }
 
-  private function is_image_url($url, $extension) {
+  private function is_image_url($extension) {
     $image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 
     return in_array($extension, $image_extensions);
@@ -231,5 +220,11 @@ abstract class Consumer {
     file_put_contents($new_file_path, $image);
 
     return plugins_url("liveblog-with-slack/files/{$filename}");
+  }
+
+  private function create_img_elements($image_urls) {
+    return implode('', array_map(function ($image_url) {
+      return '<img src="' . $image_url . '">';
+    }, $image_urls));
   }
 }
