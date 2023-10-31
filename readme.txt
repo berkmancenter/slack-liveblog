@@ -4,7 +4,7 @@ Donate link: https://cyber.harvard.edu
 Tags: slack, blog
 Requires at least: 5.7
 Tested up to: 5.7
-Stable tag: 0.2.1
+Stable tag: 0.3.0
 Requires PHP: 7.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
@@ -20,12 +20,12 @@ Currently Supported:
 * New messages
 * Editing messages
 * Deleting messages
+* Fetching images
+* Fetching social media embedded elements (X, Mastodon, YouTube)
 
 Missing functionalities:
 
 * Threads
-* Emojis
-* Images
 * Users avatars
 
 == Installation ==
@@ -86,6 +86,12 @@ After generating the new channel, return to Slack, and invite other users to the
 3. The page for managing channels. Generate a new channel or manage existing ones here.
 
 == Changelog ==
+
+= 0.3.0 =
+* Support for images, embedded objects, and emojis.
+* Optimized the XHR version of the front-end app to minimize data traffic.
+* Enabled the ability to set a refresh interval of liveblog messages.
+* Allowed to set of a delay for message publishing in the liveblog app.
 
 = 0.2.1 =
 * Started using Wordpress UI elements in the admin panel.
