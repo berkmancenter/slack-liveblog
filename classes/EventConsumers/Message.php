@@ -59,10 +59,6 @@ class Message extends Consumer {
     return FrontCore::$channels->create_local_message($message_data);
   }
 
-  private function format_unix_time($unix_timestamp) {
-    return "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$unix_timestamp}), '%Y-%m-%d %H:%i:%s.%f')";
-  }
-
   private function prepare_clients_message($local_channel, $local_message, $author) {
     return [
       'action' => 'message_new',

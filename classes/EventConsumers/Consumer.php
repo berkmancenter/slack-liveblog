@@ -227,4 +227,8 @@ abstract class Consumer {
       return '<img src="' . $image_url . '">';
     }, $image_urls));
   }
+
+  protected function format_unix_time($unix_timestamp) {
+    return "SQL_FUNC:DATE_FORMAT(FROM_UNIXTIME({$unix_timestamp}), '%Y-%m-%d %H:%i:%s.%f')";
+  }
 }

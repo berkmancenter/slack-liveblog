@@ -74,12 +74,20 @@ class Events {
    * @return void
    */
   private function handle_event() {
+    $channel_id = null;
+
     if ($this->incoming_data['type'] === 'url_verification') {
       echo $this->incoming_data['challenge'];
       exit;
     }
 
-    $channel_id = $this->incoming_data['event']['channel'];
+    if (isset($this->incoming_data['event']['channel'])) {
+      $channel_id = $this->incoming_data['event']['channel'];
+    }
+
+    if (isset($this->incoming_data['event']['item']['channel'])) {
+      $channel_id = $this->incoming_data['event']['item']['channel'];
+    }
 
     if (!in_array($channel_id, FrontCore::$channels->get_open_channels_slack_ids())) {
       $this->respond();

@@ -7,6 +7,12 @@
       </div>
       <div class="slack-liveblog-messages-item-body">
         <span v-html="message.body"></span>
+        <div class="slack-liveblog-messages-item-reactions">
+          <div v-for="(reaction, index) in orderedReactions(message.reactions)" class="slack-liveblog-messages-item-reaction">
+            <div class="slack-liveblog-messages-item-reaction-emoji" v-html="formatUnicodeEmoji(reaction.reaction_unicode)"></div>
+            <div class="slack-liveblog-messages-item-reaction-count">{{ reaction.count }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -189,6 +195,21 @@
         // Otherwise, don't show the author
         return false
       },
+      formatUnicodeEmoji(unicode) {
+        if (unicode.includes('-')) {
+          let unicodeArr = unicode.split('-')
+          unicodeArr = unicodeArr.map((singleUnicode) => {
+            return `&#x${singleUnicode}`
+          })
+
+          return unicodeArr.join(';')
+        } else {
+          return `&#x${unicode}`
+        }
+      },
+      orderedReactions(reactions) {
+        return orderBy(reactions, 'count', ['desc'])
+      },
     }
   }
 </script>
@@ -240,6 +261,28 @@
       border: 1px solid #bdb4b4;
       margin-bottom: 1rem;
       background-color: #f0f8fc;
+    }
+
+    #{$slm}-item-reactions {
+      display: flex;
+      flex-wrap: wrap;
+
+      #{$slm}-item-reaction {
+        border: 1px solid #bdb4b4;
+        border-radius: 5px;
+        padding: 0.2rem 0.4rem;
+        display: flex;
+        margin-right: 0.5rem;
+        margin-top: 1rem;
+        width: 4rem;
+        white-space: nowrap;
+        justify-content: center;
+        overflow: hidden;
+
+        #{$slm}-item-reaction-count {
+          margin-left: 0.5rem;
+        }
+      }
     }
   }
 

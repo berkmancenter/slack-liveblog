@@ -231,9 +231,25 @@ class Channels {
 
     $query = "
       SELECT
-        *,
+        cm.message,
+        cm.remote_created_at,
         cm.created_at AS created_at,
-        cm.id AS id
+        cm.id AS id,
+        (
+          SELECT
+            JSON_ARRAYAGG(
+              JSON_OBJECT('reaction_unicode', em.unicode, 'count', re.counted)
+            )
+          FROM
+            wp_slack_liveblog_messages_reactions re
+            LEFT JOIN
+            wp_slack_liveblog_emojis em
+            ON
+            re.emoji_id = em.id
+          WHERE
+            cm.id = re.message_id
+        ) AS reactions,
+        a.name
       FROM
         {$this->database->prefix}slack_liveblog_channel_messages cm
       LEFT JOIN
@@ -242,6 +258,8 @@ class Channels {
         cm.author_id = a.id
       WHERE
         " . implode(' AND ', $conditions) . "
+      GROUP BY
+        cm.id, cm.created_at
       ORDER BY
         cm.created_at DESC
     ";

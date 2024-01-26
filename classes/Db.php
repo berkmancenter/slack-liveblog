@@ -94,23 +94,23 @@ class Db {
     $special_values = [];
 
     foreach ($data as $key => $value) {
-        $columns[] = "`{$key}`";
-        if (is_string($value) && strpos(strtoupper($value), 'SQL_FUNC:') === 0) {
-            $func_value = substr($value, 9);
-            $placeholder = '##FUNC_' . count($special_values) . '##';
-            $special_values[$placeholder] = $func_value;
-            $value_placeholders[] = $placeholder;
-        } else {
-            $values[] = $value;
-            $value_placeholders[] = '%s';
-        }
+      $columns[] = "`{$key}`";
+      if (is_string($value) && strpos(strtoupper($value), 'SQL_FUNC:') === 0) {
+        $func_value = substr($value, 9);
+        $placeholder = '##FUNC_' . count($special_values) . '##';
+        $special_values[$placeholder] = $func_value;
+        $value_placeholders[] = $placeholder;
+      } else {
+        $values[] = $value;
+        $value_placeholders[] = '%s';
+      }
     }
 
     $sql = sprintf(
-        "INSERT INTO `%s` (%s) VALUES (%s)",
-        $this->get_table($model),
-        implode(', ', $columns),
-        implode(', ', $value_placeholders)
+      "INSERT INTO `%s` (%s) VALUES (%s)",
+      $this->get_table($model),
+      implode(', ', $columns),
+      implode(', ', $value_placeholders)
     );
     $sql = $this->db->prepare($sql, $values);
 
@@ -146,12 +146,21 @@ class Db {
     if (!empty($where)) {
       $query .= "WHERE ";
       $conditions = [];
+      $special_values = [];
+      $where_values = [];
       foreach ($where as $field => $value) {
-        $conditions[] = "$field = %s";
+        if (is_string($value) && strpos(strtoupper($value), 'SQL_FUNC:') === 0) {
+          $func_value = substr($value, 9);
+          $placeholder = '##FUNC_' . count($special_values) . '##';
+          $special_values[$placeholder] = $func_value;
+          $conditions[] = "$field = $placeholder";
+        } else {
+          $conditions[] = "$field = %s";
+          $where_values[] = $value;
+        }
       }
       $query .= implode(" AND ", $conditions);
     }
-    $where_args = array_values($where);
 
     if (!empty($order)) {
       $query .= " ORDER BY $order";
@@ -161,9 +170,14 @@ class Db {
       $query .= " LIMIT $limit";
     }
 
-    if (!empty($where_args)) {
-      $query = $this->db->prepare($query, $where_args);
+    if (!empty($where_values)) {
+      $query = $this->db->prepare($query, $where_values);
     }
+
+    foreach ($special_values as $placeholder => $func_value) {
+      $query = str_replace($placeholder, $func_value, $query);
+    }
+
     $result = $this->db->get_results($query);
 
     return $result;
