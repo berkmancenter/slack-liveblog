@@ -50,6 +50,18 @@ class Message extends Consumer {
       'remote_created_at' => $this->format_unix_time($event_data['ts']),
     ];
 
+    if (isset($event_data['thread_ts'])) {
+      $thread_ts = $event_data['thread_ts'];
+      $rounded_timestamp_microsecs_to_milisecs = "SQL_FUNC:CONCAT(DATE_FORMAT(FROM_UNIXTIME(" . $thread_ts . "), '%Y-%m-%d %H:%i:%s'), '.', LPAD(ROUND(MICROSECOND(FROM_UNIXTIME(" . $thread_ts . ")) / 1000), 3, '0'))";
+      $local_thread_message = FrontCore::$channels->get_message($rounded_timestamp_microsecs_to_milisecs, 'remote_created_at');
+
+      if (!$local_thread_message) {
+        return false;
+      }
+
+      $message_data['parent_id'] = $local_thread_message->id;
+    }
+
     $delay = intval($local_channel->delay);
     if ($delay && $delay > 0) {
       $message_data['published'] = false;
@@ -67,6 +79,7 @@ class Message extends Consumer {
       'author' => $author->name,
       'created_at' => $local_message->created_at,
       'id' => $local_message->id,
+      'parent_id' => $local_message->parent_id,
     ];
   }
 }

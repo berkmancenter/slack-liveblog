@@ -234,6 +234,7 @@ class Channels {
         cm.message,
         cm.remote_created_at,
         cm.created_at AS created_at,
+        cm.parent_id,
         cm.id AS id,
         (
           SELECT
@@ -248,6 +249,8 @@ class Channels {
             re.emoji_id = em.id
           WHERE
             cm.id = re.message_id
+            AND
+            re.counted > 0
         ) AS reactions,
         a.name
       FROM

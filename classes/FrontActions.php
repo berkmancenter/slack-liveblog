@@ -78,6 +78,7 @@ class FrontActions {
       'author' => $message->name,
       'created_at' => $message->remote_created_at,
       'reactions' => json_decode($message->reactions),
+      'parent_id' => $message->parent_id,
     ];
   }
 }

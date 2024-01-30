@@ -43,10 +43,14 @@ class Live {
     list($use_websockets, $ws_url) = $this->configure_websockets($channel);
 
     $messages_url = get_site_url() . "?action=slack_liveblog_get_channel_messages&channel_id={$channel->uuid}";
+    $liveblog_url = get_permalink(get_the_ID());
+    $plugin_url = plugins_url('liveblog-with-slack');
 
     $liveblog = Templates::load_template('liveblog', [
       'ws_url' => $ws_url,
       'messages_url' => $messages_url,
+      'liveblog_url' => $liveblog_url,
+      'plugin_url' => $plugin_url,
       'channel' => $channel,
       'use_websockets' => $use_websockets
     ], true);

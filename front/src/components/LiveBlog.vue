@@ -1,28 +1,19 @@
 <template>
   <div class="slack-liveblog-messages">
-    <div v-for="(message, index) in messages" :key="message.id" class="slack-liveblog-messages-item-parent" :data-id="message.id">
-      <div class="slack-liveblog-messages-item-header">
-        <div v-if="shouldShowAuthor(index)" class="slack-liveblog-messages-item-author">{{ message.author }}</div>
-        <div class="slack-liveblog-messages-item-time">{{ formatMessageTime(message.created_at) }}</div>
-      </div>
-      <div class="slack-liveblog-messages-item-body">
-        <span v-html="message.body"></span>
-        <div class="slack-liveblog-messages-item-reactions">
-          <div v-for="(reaction, index) in orderedReactions(message.reactions)" class="slack-liveblog-messages-item-reaction">
-            <div class="slack-liveblog-messages-item-reaction-emoji" v-html="formatUnicodeEmoji(reaction.reaction_unicode)"></div>
-            <div class="slack-liveblog-messages-item-reaction-count">{{ reaction.count }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Message v-for="(message, index) in parentMessages" :key="message.id" :message="message" :messages="messages" :sorting="sorting" :index="index"></Message>
   </div>
 </template>
 
 <script>
   import orderBy from 'lodash/orderBy'
   import uniqBy from 'lodash/uniqBy'
+  import Message from './Message.vue'
+  import { nextTick } from 'vue'
 
   export default {
+    components: {
+      Message,
+    },
     data() {
       return {
         messages: [],
@@ -57,16 +48,13 @@
       },
     },
     computed: {
-      formatMessageTime() {
-        return function (created_at) {
-          if (!created_at) {
-            return ''
+      parentMessages() {
+        return this.messages.filter((m) => {
+          if (!m.parent_id) {
+            return true
           }
-
-          const date = new Date(Date.parse(created_at))
-          return date.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: true, hour: 'numeric', minute: 'numeric' })
-        }
-      },
+        })
+      }
     },
     mounted() {
       this.initialLoadMessages()
@@ -109,6 +97,7 @@
           .then(response => response.json())
           .then(data => {
               this.messages = orderBy(data.new, 'created_at', [this.sorting])
+              this.jumpToSpecificMessage()
           })
           .catch(error => console.error(error))
       },
@@ -155,60 +144,13 @@
           this.messages[index] = message
         }
       },
-      shouldShowAuthor(index) {
-        if (index === 0) {
-          // Always show the author of the first message
-          return true
+      async jumpToSpecificMessage() {
+        if (window.location.hash) {
+          await nextTick()
+          const requestedHash = window.location.hash.slice(1)
+          window.location.hash = ''
+          window.location.hash = requestedHash
         }
-
-        // Show the author if the current message is the last one
-        if (index === this.messages.length - 1) {
-          return true
-        }
-
-        const prevMessage = this.messages[index - 1]
-        const currMessage = this.messages[index]
-
-        const prevAuthor = prevMessage && prevMessage.author
-        const currAuthor = currMessage && currMessage.author
-        const prevCreatedAt = prevMessage && prevMessage.created_at && Date.parse(prevMessage.created_at)
-        const currCreatedAt = currMessage && currMessage.created_at && Date.parse(currMessage.created_at)
-
-        // Show the author if the previous message was written by a different author
-        if (prevAuthor !== currAuthor) {
-          return true
-        }
-
-        // Show the author if the previous message was written more than 10 minutes ago
-        let timeDiff
-        if (this.sorting === 'desc') {
-          timeDiff = currCreatedAt && prevCreatedAt ? prevCreatedAt - currCreatedAt : 0
-        } else {
-          timeDiff = currCreatedAt && prevCreatedAt ? currCreatedAt - prevCreatedAt : 0
-        }
-        const minutesDiff = timeDiff / (1000 * 60)
-
-        if (minutesDiff >= 10) {
-          return true
-        }
-
-        // Otherwise, don't show the author
-        return false
-      },
-      formatUnicodeEmoji(unicode) {
-        if (unicode.includes('-')) {
-          let unicodeArr = unicode.split('-')
-          unicodeArr = unicodeArr.map((singleUnicode) => {
-            return `&#x${singleUnicode}`
-          })
-
-          return unicodeArr.join(';')
-        } else {
-          return `&#x${unicode}`
-        }
-      },
-      orderedReactions(reactions) {
-        return orderBy(reactions, 'count', ['desc'])
       },
     }
   }
@@ -219,99 +161,5 @@
 
   #{$slm} * {
     box-sizing: border-box;
-  }
-
-  #{$slm}-item-padding {
-    margin-bottom: 1rem;
-  }
-
-  #{$slm}-item-parent {
-    margin-top: 1rem;
-
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  #{$slm}-item-author {
-    font-weight: bold;
-    font-size: 110%;
-  }
-
-  #{$slm}-item-header {
-    display: flex;
-    align-items: baseline;
-  }
-
-  #{$slm}-item-body {
-    width: 100%;
-    background-color: #ffffff;
-    border-radius: 1rem;
-    padding: 1rem;
-    border: 1px solid #bdb4b4;
-    overflow-wrap: anywhere;
-    word-break: normal;
-
-    img,
-    #{$slm}-embedded-items-item {
-      display: block;
-      max-width: 100%;
-      padding: 1rem;
-      border-radius: 1rem;
-      border: 1px solid #bdb4b4;
-      margin-bottom: 1rem;
-      background-color: #f0f8fc;
-    }
-
-    #{$slm}-item-reactions {
-      display: flex;
-      flex-wrap: wrap;
-
-      #{$slm}-item-reaction {
-        border: 1px solid #bdb4b4;
-        border-radius: 5px;
-        padding: 0.2rem 0.4rem;
-        display: flex;
-        margin-right: 0.5rem;
-        margin-top: 1rem;
-        width: 4rem;
-        white-space: nowrap;
-        justify-content: center;
-        overflow: hidden;
-
-        #{$slm}-item-reaction-count {
-          margin-left: 0.5rem;
-        }
-      }
-    }
-  }
-
-  #{$slm}-item-time {
-    margin-left: 1rem;
-  }
-
-  #{$slm}-embedded-items {
-    margin-top: 0.5rem;
-
-    #{$slm}-embedded-items-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      background-color: #f0f8fc;
-      margin-bottom: 1rem;
-
-      &:last-child {
-        margin-bottom: 0;
-      }
-
-      .twitter-tweet {
-        margin: 0 !important;
-      }
-
-      .twitter-tweet + br {
-        display: none;
-      }
-    }
   }
 </style>
