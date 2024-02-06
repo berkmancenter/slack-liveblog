@@ -157,10 +157,6 @@
   #{$slm}-item-parent {
     margin-top: 1rem;
     position: relative;
-
-    &:first-child {
-      margin-top: 0;
-    }
   }
 
   #{$slm}-item-author {
